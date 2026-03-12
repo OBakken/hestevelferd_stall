@@ -1,0 +1,327 @@
+**How the welfare assessment calculation system works (Welfare Quality
+logic applied to horses)**
+
+**1. General idea: from observations to an overall welfare judgement**
+
+Both the Welfare Quality (WQ) protocol for cattle and the horse welfare
+protocol follow the same **conceptual logic**:
+
+-   Welfare is **multidimensional** and cannot be described by a single
+    measure.
+
+-   Welfare is assessed primarily using **animal-based indicators**,
+    supported by resource- or management-based indicators where
+    necessary.
+
+-   Individual observations are **progressively integrated** into
+    higher-level scores, rather than averaged.
+
+The calculation system is designed to answer one central question:
+
+*"Given what we observe in the animals, how good is their overall
+welfare --- and where are the main weaknesses?"*
+
+This integration happens step by step, moving from **single
+observations** to **indices**, then to **principles**, and finally to an
+**overall welfare category**
+
+**2. Structure shared by cattle and horse protocols**
+
+Both systems use the same **four welfare principles**:
+
+1.  **Good feeding**
+
+2.  **Good housing**
+
+3.  **Good health**
+
+4.  **Appropriate / normal behaviour**
+
+Each principle is composed of **several welfare criteria (indices)**.\
+For example:
+
+-   *Good feeding* includes absence of prolonged hunger and thirst.
+
+-   *Good health* includes absence of injuries, absence of disease, and
+    absence of pain.
+
+The **horse welfare system mirrors this structure**, but adapts the
+content of the indices to horse-specific biology, management, and use
+(e.g. ridden pain, oral lesions, voluntary approach behaviour)
+
+**3. Step 1: Converting observations into criterion (index) scores**
+
+At the lowest level, assessors record **simple observations**:
+
+-   Presence / absence
+
+-   Mild / severe
+
+-   Proportions of animals affected
+
+These observations are **not used directly**. Instead, they are
+converted into a **score from 0 to 100** for each welfare criterion
+(index):
+
+-   **100 = very good welfare**
+
+-   **0 = very poor welfare**
+
+Important features of this step:
+
+-   The relationship between observations and scores is **not linear**.
+
+-   Small numbers of mild problems reduce the score only slightly.
+
+-   Severe or widespread problems reduce the score **rapidly**.
+
+This is done using **predefined scoring curves (splines)** that reflect
+expert judgement about welfare severity.\
+For example, one severely lame animal has a larger impact than several
+animals with very minor skin lesions
+
+👉 **Key message:** the system is designed to be *biologically
+meaningful*, not mathematically simple.
+
+**4. Step 2: Combining indicators within a criterion (weighted
+integration)**
+
+Some criteria consist of **multiple indicators**.\
+For example:
+
+-   *Absence of injuries* may include different injury types.
+
+-   *Absence of pain* in horses includes oral lesions, back sensitivity,
+    and behavioural responses during tacking.
+
+These indicators are combined using a **weighted integration method**
+(Choquet integration), which has two practical consequences:
+
+1.  **More serious welfare problems count more** than mild ones.
+
+2.  **Poor performance in one important indicator cannot be fully
+    compensated** by good performance in another.
+
+In practice, this means:
+
+-   A stable cannot get a high health score if pain indicators are poor,
+    even if other health measures look acceptable.
+
+-   This reflects ethical and veterinary judgement rather than
+    statistical averaging
+
+**5. Step 3: From criteria to principle scores**
+
+Once each criterion has a 0--100 score, they are combined into
+**principle scores**, again using weighted integration.
+
+For example:
+
+-   *Good health* combines injuries, diseases, and pain-related indices.
+
+-   Pain and disease indicators are given **greater influence** than
+    minor injuries.
+
+This ensures that:
+
+-   One major welfare problem lowers the principle score clearly.
+
+-   High scores in one principle (e.g. feeding) do **not compensate**
+    for poor scores in another (e.g. behaviour).
+
+This logic is **identical in cattle and horses**, even though the
+specific indicators differ.
+
+**[In more detail:]{.mark}**
+
+**Example of the calculation logic: the *Good health* principle**
+
+To illustrate how the calculation system works in practice, the *Good
+health* principle can be used as an example. The same logic is applied
+in both the Welfare Quality (WQ) cattle protocol and the horse welfare
+protocol:
+
+**Composition of the *Good health* principle**
+
+In the horse welfare system, *Good health* consists of four welfare
+indices:
+
+1.  **Absence of injuries**
+
+2.  **Absence of disease**
+
+3.  **Absence of pain induced by management**
+
+4.  **Absence of other pain**
+
+Each index is scored on a **0--100 scale**, where higher values indicate
+better welfare.
+
+However, these four indices are **not treated as equally important**.
+Based on expert panel evaluation and scientific evidence, their
+**relative severity** is defined as:
+
+**Other pain (9) \> management-induced pain (8) \> disease (7) \>
+injuries (6)**
+
+Disease (7) and injuries (6) are considered close in severity, with
+disease having only a slightly stronger influence.
+
+**From expert judgement to U-values**
+
+Expert opinions on severity are translated into a set of **U-values**.\
+These values do not represent probabilities or weights in a traditional
+averaging sense. Instead, they describe:
+
+-   how strongly each index influences the result on its own, and
+
+-   how combinations of indices should be interpreted when several
+    problems occur simultaneously.
+
+For the *Good health* principle, the U-values were defined so that:
+
+-   Problems related to **pain** have a stronger effect than injuries or
+    disease.
+
+-   **Other pain** has the strongest influence.
+
+-   Disease is only slightly more influential than injuries.
+
+-   Co-occurrence of several health problems increases concern more than
+    any single problem alone.
+
+The calculation system is normalised so that the full set of health
+indices corresponds to a maximum influence of **1**, ensuring that the
+final principle score remains on a **0--100 scale**.
+
+**What "more severe" means in practice**
+
+Because a Choquet integral is used, the effective influence of each
+index depends on **all U-values together**, not just on single
+indicators.\
+This influence can be expressed using **relative importance
+percentages**, which are easier to interpret than raw U-values.
+
+In the current system, the *effective severity differences* between the
+health indices are approximately:
+
+-   **Disease (7) is about 14% more influential than injuries (6)**
+
+-   **Management-induced pain (8) is about 25% more influential than
+    disease (7)**
+
+-   **Other pain (9) is about 11% more influential than
+    management-induced pain (8)**
+
+In practical terms, this means that:
+
+-   A decline in pain-related indices reduces the *Good health* score
+    more strongly than a similar decline in injuries or disease.
+
+-   Disease does reduce the score slightly more than injuries, but the
+    difference is deliberately small.
+
+-   Very good performance in injuries or disease cannot fully compensate
+    for poor pain-related outcomes.
+
+**Integration of indices within *Good health***
+
+When the four health indices are combined:
+
+-   The calculation first identifies the **lowest-performing index**.
+
+-   That index always contributes fully to the final score.
+
+-   Improvements in better-performing indices contribute progressively
+    less, depending on their severity ranking and combinations with
+    other indices.
+
+As a result:
+
+-   A single serious pain problem can substantially lower the *Good
+    health* score.
+
+-   Multiple moderate health problems together lower the score more than
+    any one of them alone.
+
+-   High scores in minor health aspects do not mask serious pain or
+    disease issues.
+
+This integration logic is **identical to that used in the WQ cattle
+protocol**, although the horse system includes pain indicators specific
+to equine management and use.
+
+**Why this approach is preferred to averaging**
+
+If simple averaging were used, high scores for injuries and disease
+could mathematically offset poor scores for pain, producing an
+apparently acceptable *Good health* result despite clear welfare
+concerns.
+
+The Choquet-based system avoids this by:
+
+-   respecting expert judgement on severity,
+
+-   limiting compensation between indices,
+
+-   and ensuring that pain and serious health problems remain clearly
+    visible in the results.
+
+**6. Step 4: Overall welfare category (threshold-based, not averaged)**
+
+The final outcome is an **overall welfare classification**, based on
+**principle scores**, not their average.
+
+In the WQ logic:
+
+-   All principles must reach **minimum thresholds**.
+
+-   Higher categories require **consistently good performance** across
+    principles.
+
+For cattle, the four standard categories are:
+
+-   Unacceptable
+
+-   Acceptable
+
+-   Enhanced
+
+-   Excellent
+
+In the **horse welfare system**, this logic is retained, but the
+categories are **expanded into six levels** to better reflect variation
+between stables and support developmental feedback (e.g. splitting
+"acceptable" and "enhanced" into upper and lower ranges)
+
+👉 Crucially:
+
+**Good results in one area never cancel out poor results in another.**
+
+**7. Why the system looks complex (but works in practice)**
+
+Although the calculations behind the system involve splines and weighted
+integration, the **user does not need to perform or understand the
+mathematics**.
+
+What matters is that the system:
+
+-   Reflects **animal welfare science and expert judgement**
+
+-   Prevents misleading "average scores"
+
+-   Highlights **real welfare risks**
+
+-   Produces results that are **stable, comparable, and biologically
+    meaningful**
+
+Both the cattle WQ protocol and the horse welfare protocol are therefore
+**decision-support tools**, not statistical exercises.
+
+**8. In one sentence**
+
+The calculation system translates simple animal-based observations into
+meaningful welfare judgements by progressively integrating them --- with
+severity-based weighting and strict thresholds --- so that serious
+welfare problems are always visible and never hidden by good performance
+elsewhere.

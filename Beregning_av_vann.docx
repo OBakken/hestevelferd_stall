@@ -1,0 +1,527 @@
+**Digitalt vurderingsskjema -- A3 *Vanntilgang* (Ingen langvarig
+tørste)**
+
+Dette skjemaet følger den finske hestevelferdsprotokollen (Mittarit
+hevosten hyvinvoinnin arviointiin) og skal hjelpe inspektøren med å
+vurdere **vanntilgang** (A3) for alle hester på en stall. Det er
+utformet som en **interaktiv veiviser**, der svarene fører til
+automatisk beregning av kategori (a--f) og poengsum (100--5) iht.
+beslutningstreet (Figur 10 i protokollen).
+
+**Hovedprinsipper:**
+
+-   **Betingede spørsmål:** Skjemaet stiller bare relevante spørsmål.
+    Hvis f.eks. ingen hester mangler vann, hopper man over spørsmål om
+    varighet uten vann.
+
+-   **Terskelverdier:** Vurderingen bruker klare grenser: maks **4 timer
+    uten vann**, maks **15 %** av hestene uten vann samtidig, minimum
+    **8 L/min** vannstrøm i drikkekar, og minst **2 drikkepunkter** for
+    grupper \>2 (evt. ≥4,5 cm karfront per hest).
+
+-   **Vannkvalitet:** Skittent vann (slimete, grumsete, kontaminert)
+    regnes som **"ikke tilgjengelig"**. Hester med slikt vann teller
+    derfor som "uten vann".
+    [\[hevostenhy\...nvointi.fi\]](https://hevostenhyvinvointi.fi/site/wp-content/uploads/2024/12/hyvinvointikortit_saavutettava.pdf)
+
+-   **Automatisk score:** Basert på svarene plasseres stallen i kategori
+    a, b, c, d, e eller f, med tilhørende poeng (100, 80, 60, 40, 20,
+    5). Systemet følger protokollens regler, f.eks. at \>4 t uten vann
+    eller \>15 % av hestene uten vann medfører en lav kategori.
+
+-   **Kontinuerlig tilgang**
+
+-   Ingen hest skal mangle vann over **4 timer**. Dersom mer enn **15
+    %** av hestene er uten vann samtidig, anses det som et alvorlig
+    avvik.
+
+-   **Vannstrøm**
+
+-   Automatiske drikkekar skal ha en strømhastighet på minst **8
+    L/min** for å sikre at hestene drikker nok. Lavere vannstrøm trekker
+    ned kategorien.
+
+-   **Gruppevanning**
+
+-   I grupper \> 2 hester må det finnes flere enn én drikkekilde. Hvis
+    en flokk deler et åpent vannkar, bør det ha ca. **4,5 cm drikkekant
+    per hest** (slik at alle kan drikke samtidig).
+
+-   **Vannkvalitet**
+
+-   **Slimete belegg**, **grumsete
+    vann** eller **kontaminasjon** (f.eks. møkk eller døde dyr) i vannet
+    gjør at det regnes som *utilgjengelig*. Hester med slik vann regnes
+    som om de ikke har vann.
+
+**Spørsmål og logikk i skjemaet**
+
+**0. Grunnlagsdata:**
+
+-   **Totalt antall hester:** \_\_\_\_\
+    *(Behøves for å regne ut prosentandeler, f.eks. 15 % terskel.)*
+
+**1. Tilgang på vann (observasjon):**\
+1.1 **Vann inne:** Har alle hester vann tilgjengelig **inne i boksene**
+nå? [\[Wellfare a\...b dokument \|
+Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1)
+
+-   Ja
+
+-   Nei
+
+    -   Hvis *nei*: **Hvor mange hester** manglet vann inne? \_\_\_\_
+        [\[Wellfare a\...b dokument \|
+        Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1)
+
+1.2 **Vann ute:** Har alle hester vann tilgjengelig **ute i
+luftegård/beite** nå? [\[Wellfare a\...b dokument \|
+Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1)
+
+-   Ja
+
+-   Nei
+
+    -   Hvis *nei*: **Hvor mange hester** manglet vann ute? \_\_\_\_
+        [\[Wellfare a\...b dokument \|
+        Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1)
+
+1.3 **Varighet uten vann:** *(Dette spørsmålet vises bare hvis ett eller
+flere dyr manglet vann)* Fikk alle hester som manglet vann, tilgang til
+vann igjen **innen 4 timer**? [\[Wellfare a\...b dokument \|
+Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1)
+
+-   Ja (vannfraværet var kortvarig, under 4 t)
+
+-   Nei (minst én hest sto \>4 t uten vann)
+
+*Logikk:* Hvis noen hester sto uten vann i mer enn 4 timer, flagges
+dette som **langvarig tørste**. Protokollen sier at dersom vannmangel
+varer over 4 timer **eller** rammer over 15 % av hestene, er det et
+alvorlig avvik. Systemet vil i så fall plassere stallen i kategori **e
+(20 poeng)** eller **f (5 poeng)**, avhengig av omfanget.
+
+**2. Vannkvalitet:**\
+2.1 **Er vannet rent og drikkbart?** (Gjelder alle drikkekar/bøtter)
+[\[hevostenhy\...nvointi.fi\]](https://hevostenhyvinvointi.fi/site/wp-content/uploads/2024/12/hyvinvointikortit_saavutettava.pdf)
+
+-   Ja (klart vann, rent kar)
+
+-   Nei (vann av **dårlig kvalitet**)
+
+    -   Hvis *nei*: Kryss av hvilke avvik som ble observert:
+
+        -   **Slimete belegg** i kar
+            [\[hevostenhy\...nvointi.fi\]](https://hevostenhyvinvointi.fi/site/wp-content/uploads/2024/12/hyvinvointikortit_saavutettava.pdf)
+
+        -   **Grumsete vann**, bunnen ikke synlig
+            [\[hevostenhy\...nvointi.fi\]](https://hevostenhyvinvointi.fi/site/wp-content/uploads/2024/12/hyvinvointikortit_saavutettava.pdf)
+
+        -   **Kontaminasjon**, f.eks. møkk eller dødt dyr i vannet
+            [\[hevostenhy\...nvointi.fi\]](https://hevostenhyvinvointi.fi/site/wp-content/uploads/2024/12/hyvinvointikortit_saavutettava.pdf)
+
+        -   **Antall hester** med slik skittent vann: \_\_\_\_
+
+        -   *Merk:* Disse hestene regnes som "uten tilgang på vann"
+            (selv om det fysisk er vann til stede) fordi hester ofte
+            ikke vil drikke svært skittent vann. Systemet legger derfor
+            dette antallet til de som mangler vann i vurderingen.
+            [\[hevostenhy\...nvointi.fi\]](https://hevostenhyvinvointi.fi/site/wp-content/uploads/2024/12/hyvinvointikortit_saavutettava.pdf)
+
+**3. Vannforsyningstype:**\
+3.1 **Hvordan får hestene vann?** [\[Wellfare a\...b dokument \|
+Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1),
+[\[Wellfare a\...b dokument \|
+Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1)
+
+-   Antall hester med **automatisk drikkekar**: \_\_\_\_ [\[Wellfare
+    a\...b dokument \|
+    Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1)
+
+-   Antall hester med **manuell vanning** (bøtter/kantvann): \_\_\_\_\
+    *(Summen skal tilsvare totalt antall hester; skjemaet gir varsel
+    hvis ikke)*. [\[Wellfare a\...b dokument \|
+    Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1)
+
+3.2 **Helårsvann ute:** *Informasjon:* Har stallen vanntilførsel ute
+hele året? (Hvis *nei*, betyr det at hestene ute om vinteren må ha vann
+fra bøtter e.l., som krever ekstra oppfølging. Dette påvirker ikke
+direkte poeng, men er nyttig å vite.)
+
+-   Ja, frostfri vannkilde ute om vinteren.
+
+-   Nei, utevann må gis manuelt ved frost.
+
+*Logikk:* Vannforsyningstype i seg selv påvirker vurderingen: Hvis alle
+hester kun har **manuell vanning**, oppfyller de ikke kriteriet for
+kontinuerlig selvbetjent tilgang. Protokollen tilsier da at stallen
+**ikke** kan få kategori a (100 poeng). Typisk vil en ellers prikkfri
+stall med kun kantvann plasseres i kategori **b (80 poeng)** eller **c
+(60 poeng)**, avhengig av øvrige forhold. Vi registrerer tallene for å
+ha oversikt (og sum-kontroll mot total), men endelig kategori avgjøres
+av kombinasjonen av faktorer.
+
+**4. Gruppehold (drikkepunkter):**\
+4.1 **Gruppetilgang:** Er noen av hestene holdt i grupper/flokk på \>2
+individer? [\[Wellfare a\...b dokument \|
+Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1)
+
+-   Nei (ikke aktuelt, ingen grupper \>2)
+
+-   Ja
+
+    -   Hvis *ja*: For **hver gruppe**, angi:
+
+        -   Gruppe X -- antall hester: \_\_\_\_ ; antall **separate**
+            drikkepunkter: \_\_\_\_
+
+        -   (Trykk "\[+ Legg til gruppe\]" for å registrere flere
+            grupper)
+
+4.2 **Tilstrekkelig drikkekilder?:** *Denne beregnes automatisk:* For
+hver registrerte gruppe, sjekker systemet om det er *mer enn én*
+vannkilde. Hvis en gruppe på f.eks. 5 hester kun har 1 vannkar, vil
+spørsmålet *"har gruppen \>1 vannkilde?"* svares Nei for den gruppen. I
+så fall behandles det som et avvik: Hestene kan måtte konkurrere om
+vannet. Ideelt skal alle \>2 grupper ha minst to drikkepunkter eller et
+stort trau der flere kan drikke samtidig.
+[\[hevostenhy\...nvointi.fi\]](https://hevostenhyvinvointi.fi/site/wp-content/uploads/2024/12/hyvinvointikortit_saavutettava.pdf)
+
+*Logikk:* Hvis **"Nei" for flere vannkilder i gruppe**, trekker det ned
+vurderingen. Et enkelt avvik her (én gruppe med 1 kar) vil typisk gi
+kategori **b** eller **c** (forutsatt ingen tørste er observert -- det
+er da et *risiko*-avvik). Hvis kombinasert med faktisk tørste (hester
+som ikke fikk drikke pga. gruppedynamikk), vil det reflekteres i
+spørsmål 1 og 2 uansett.
+
+**5. Vannstrøm i automatkar:**\
+5.1 **Lav vannstrøm?** Gjelder kun hvis hestene har automatisk
+drikkekar. Mål hvor lang tid det tar å fylle f.eks. en 2 liters bøtte
+fra et kar (eller et par representative kar). Registrer:
+[\[hevostenhy\...nvointi.fi\]](https://hevostenhyvinvointi.fi/site/wp-content/uploads/2024/12/hyvinvointikortit_saavutettava.pdf)
+
+-   Volum: \_\_\_\_ liter (anbefalt 2,0 L)
+
+-   Tid: \_\_\_\_ sekunder\
+    --\> **Beregnet vannstrøm:** \_\_\_\_ L/min (vises automatisk)
+
+*(Trykk "\[+ Legg til måling\]" for flere kar. Skjemaet beregner L/min
+for hver.)*
+
+5.2 **Oppfyller kravet?** Systemet sjekker om alle målte kar har **≥ 8
+L/min** strømhastighet. Hvis *nei* for ett eller flere:\
+-- Vises varsel: "Vannstrøm under 8 L/min registrert (laveste:
+X L/min)."\
+-- Disse hestene anses teknisk å ha vann, men tregt påfyll. I
+toppscore-kategorien (a) kreves ≥8 L/min; lavere verdier vil trekke ned
+til kategori b/c.
+[\[hevostenhy\...nvointi.fi\]](https://hevostenhyvinvointi.fi/site/wp-content/uploads/2024/12/hyvinvointikortit_saavutettava.pdf)
+
+*Logikk:* 8 L/min brukes som kriterium for optimal vannforsyning. Om
+vannstrøm er 6 L/min, er det et moderat avvik (trolig kategori b dersom
+alt annet fint). Er det så lavt som 2--3 L/min, kan hestene i praksis
+være tørste selv med "vann tilgjengelig", og det vil kombinert med
+observasjonene dytte kategorien ned mot d/e.
+[\[hevostenhy\...nvointi.fi\]](https://hevostenhyvinvointi.fi/site/wp-content/uploads/2024/12/hyvinvointikortit_saavutettava.pdf)
+
+**6. Kategoriberegning (automatisk):**
+
+Når ovenstående er utfylt, beregner systemet stalles kategori og poeng
+for A3. Beregningen følger beslutningstreet nøyaktig, i korthet:
+
+-   **Kategori a (100 poeng):** *Ingen mangler.* Alle hester har
+    kontinuerlig tilgang på rent vann. Vannforsyningen er optimal --
+    f.eks. automatkar både inne og ute, med ≥8 L/min strømhastighet.
+    Eventuelle grupper har flere drikkesteder slik at ingen blir
+    forhindret. *(Dette tilsvarer perfekt oppfyllelse av "ingen
+    langvarig tørste".)*
+    [\[hevostenhy\...nvointi.fi\]](https://hevostenhyvinvointi.fi/site/wp-content/uploads/2024/12/hyvinvointikortit_saavutettava.pdf)
+
+-   **Kategori b (80 poeng):** *Små avvik, ingen tørste.* Mulige
+    scenarier: Hestene har vann, men **vannstrøm er litt under 8 L/min**
+    (f.eks. 5--7 L/min); **eller** vann gis manuelt (bøtter) men
+    inspektøren passer på at de aldri går tørste; **eller** én hest sto
+    uten vann en kort stund \<4 t. Ingen tegn til dehydrering, men noen
+    forhold kan bedres (f.eks. øke vanntrykk eller installere ekstra kar
+    i en flokk).
+    [\[hevostenhy\...nvointi.fi\]](https://hevostenhyvinvointi.fi/site/wp-content/uploads/2024/12/hyvinvointikortit_saavutettava.pdf)
+
+-   **Kategori c (60 poeng):** *Milde/moderate avvik.* Eksempler:
+    **Flere hester (men \<15 %) var uten vann en kort periode**
+    (\<4 timer) -- f.eks. noen utehester hadde tomme kar ved ankomst,
+    men drikkevann ble etterfylt raskt. **Eller** all vannforsyning er
+    manuell (ingen automatiske kar), men hestene ble gitt vann nokså
+    regelmessig. **Eller** en flokk på 4--5 hester deler ett vannpunkt,
+    hvilket *kan* hindre de lavest rangerte fra å drikke, selv om vi
+    ikke så konkrete tørstesymptomer. Kategori c indikerer at det finnes
+    forbedringspunkter, men ingen utbredt eller langvarig tørste ble
+    dokumentert.
+
+-   **Kategori d (40 poeng):** *Betydelige avvik.* Mulige årsaker hit:
+    **Noen hester opplevde begynnende langvarig tørste** -- f.eks.
+    vannmangel varte litt for lenge (rundt eller over 4 timer) **eller**
+    gjaldt ganske mange dyr (f.eks. 10--20 % av besetningen). **Eller**
+    vannet var så skittent for flere hester at det i praksis var
+    utilgjengelig (slimete/grumsete kar for, si, 5 hester). **Eller** en
+    flokk har for få drikkestasjoner, og observatør merket at enkelte
+    hester *ikke* fikk drikke i fred. Kategori d betyr *langvarig tørste
+    forekommer for noen*, og stallen må utbedre dette.
+
+-   **Kategori e (20 poeng):** *Alvorlige avvik.* Dette inntreffer hvis
+    **en ikke ubetydelig andel hester har lidd av tørste**. For
+    eksempel: Mer enn 15 % av hestene sto uten vann i over 4 timer.
+    Kanskje en hel gruppe ble glemt uten vann en dag, eller et
+    frostproblem gjorde at 3 av 10 hester ikke hadde vann store deler av
+    dagen. Også ekstremt skittent vann til en del hester kan kvalifisere
+    (fordi de i praksis ikke drikker). Kategori e tilsier at minst ett
+    aspekt av vanntilgangen sviktet grovt for en del av hestene, selv om
+    det ikke nødvendigvis rammet flertallet.
+
+-   **Kategori f (5 poeng):** *Svært alvorlige avvik.* Nærmest total
+    svikt. Scenario: **De fleste eller alle hester sto uten vann svært
+    lenge**, eller vannkildene var ubrukelige. For eksempel en stall der
+    vannsystemet har vært tørt i et døgn, eller 80 % av hestene ute på
+    sommerbeite hadde ikke vann en hel varm dag. Kategori f betyr at
+    mange hester led av mangel på vann -- dette er akutt kritisk og
+    krever umiddelbar handling.
+
+**Regelverk i beregningen:**\
+Beslutningstreet håndterer kombinasjoner av avvik etter faste regler.
+Noen viktige regler fra protokollen:
+
+-   Hvis **≥ 15 %** av hestene faller under kriteriene for e eller f
+    (alvorlig tørste), så skal stallen totalt få **den respektive lave
+    kategorien**. (Dette sikrer at selv om majoriteten har det bra, drar
+    alvorlige tilfeller totalen ned -- man "straffes" for å la mange dyr
+    tørste.)
+
+-   Hvis én høy kategori (a, b, c, d) gjelder **≥ 75 %** av hestene og
+    ingen alvorlige unntak, kan totalen avrundes til den kategorien.
+    (Eks.: 90 % av hestene har kategori a-forhold, men 10 % har b; da
+    blir totalen a.)
+
+-   Ellers beregnes en **vektet score** basert på andelen hester i hver
+    kategori. Denne mellomverdien avgjør om det blir f.eks. 60 eller 40
+    poeng osv. (Det er grunnen til at sluttpoeng noen ganger kan være en
+    mellomverdi som 50 -- f.eks. hvis halvparten av hestene er i
+    kategori c og halvparten i d.)
+
+**Oversiktstabell: Svar-kombinasjoner → Kategori**
+
+Nedenfor er en forenklet tabell som viser typiske utfall. (Den
+**nøyaktige** kategorien bestemmes av skjemaet algoritmisk, men tabellen
+gir en pekepinn.)
+
++----------------------+-----------------------+-----------------------+
+| Kategori             | Forutsetninger        | Poeng                 |
+|                      | (eksempler på         |                       |
+|                      | kombinasjoner av      |                       |
+|                      | svar)                 |                       |
++======================+=======================+=======================+
+| a                    | -- Alle hester hadde  | 100                   |
+|                      | vann (ingen "uten     |                       |
+|                      | vann").\              |                       |
+|                      | -- Ingen hadde        |                       |
+|                      | skittent vann.\       |                       |
+|                      | -- Automatisk vann    |                       |
+|                      | inne **og** ute,      |                       |
+|                      | strømhastighet ≥ 8    |                       |
+|                      | L/min.                |                       |
+|                      | [\[h                  |                       |
+|                      | evostenhy\...nvointi. |                       |
+|                      | fi\]](https://hevoste |                       |
+|                      | nhyvinvointi.fi/site/ |                       |
+|                      | wp-content/uploads/20 |                       |
+|                      | 24/12/hyvinvointikort |                       |
+|                      | it_saavutettava.pdf)\ |                       |
+|                      | -- Grupper: alle      |                       |
+|                      | hadde ≥2              |                       |
+|                      | drikkepunkter el.     |                       |
+|                      | stor nok felleskar.\  |                       |
+|                      | *(Full pott: Ingen    |                       |
+|                      | anmerkninger.)*       |                       |
++----------------------+-----------------------+-----------------------+
+| b                    | -- Alle hester hadde  | 80                    |
+|                      | vann, *evt. én hest   |                       |
+|                      | kort uten* (\<4t).\   |                       |
+|                      | -- Små avvik: f.eks.  |                       |
+|                      | vannstrøm litt under  |                       |
+|                      | 8 L/min               |                       |
+|                      | [\[h                  |                       |
+|                      | evostenhy\...nvointi. |                       |
+|                      | fi\]](https://hevoste |                       |
+|                      | nhyvinvointi.fi/site/ |                       |
+|                      | wp-content/uploads/20 |                       |
+|                      | 24/12/hyvinvointikort |                       |
+|                      | it_saavutettava.pdf), |                       |
+|                      | *eller* kun           |                       |
+|                      | bøttevanning (men     |                       |
+|                      | hyppig).\             |                       |
+|                      | -- Vannkvalitet OK    |                       |
+|                      | (eller et kar lite    |                       |
+|                      | grums som ble         |                       |
+|                      | renset).\             |                       |
+|                      | -- Grupper: Kanskje   |                       |
+|                      | én gruppe med bare 1  |                       |
+|                      | kar, men det *virket* |                       |
+|                      | å gå fint.            |                       |
++----------------------+-----------------------+-----------------------+
+| c                    | -- *Mindre            | 60                    |
+|                      | tørsteproblemer:*     |                       |
+|                      | F.eks. 1--2 hester    |                       |
+|                      | (av \~10) stod uten   |                       |
+|                      | vann en stund, men    |                       |
+|                      | under 4t.\            |                       |
+|                      | -- *Eller:*           |                       |
+|                      | Flertallet på         |                       |
+|                      | kantvann, men alle    |                       |
+|                      | ble vannet så ingen   |                       |
+|                      | ble uttørstet.\       |                       |
+|                      | -- *Eller:* Vann litt |                       |
+|                      | skittent for et par   |                       |
+|                      | hester (slim i kar),  |                       |
+|                      | potensielt et         |                       |
+|                      | problem.              |                       |
+|                      | [\[h                  |                       |
+|                      | evostenhy\...nvointi. |                       |
+|                      | fi\]](https://hevoste |                       |
+|                      | nhyvinvointi.fi/site/ |                       |
+|                      | wp-content/uploads/20 |                       |
+|                      | 24/12/hyvinvointikort |                       |
+|                      | it_saavutettava.pdf)\ |                       |
+|                      | -- *Eller:* En flokk  |                       |
+|                      | med 5--6 hester hadde |                       |
+|                      | kun 1 vannpunkt, noe  |                       |
+|                      | som *kan* hindre de   |                       |
+|                      | ranglave.\            |                       |
+|                      | *(Indikerer           |                       |
+|                      | forbedringsmuligheter |                       |
+|                      | før det blir          |                       |
+|                      | alvorlig.)*           |                       |
++----------------------+-----------------------+-----------------------+
+| d                    | -- *Tydelig           | 40                    |
+|                      | tørsterisiko:* F.eks. |                       |
+|                      | 3 av 10 hester fant   |                       |
+|                      | tomme kar ved         |                       |
+|                      | inspeksjon (mer \<15  |                       |
+|                      | %, men alvorlig nok); |                       |
+|                      | de fikk ikke drikke   |                       |
+|                      | på \~4 timer.\        |                       |
+|                      | -- *Eller:*           |                       |
+|                      | Vannkvalitet dårlig   |                       |
+|                      | for flere hester:     |                       |
+|                      | slimete og møkkete    |                       |
+|                      | kar (hestene drakk    |                       |
+|                      | neppe)                |                       |
+|                      | [\[he                 |                       |
+|                      | vostenhy\...nvointi.f |                       |
+|                      | i\]](https://hevosten |                       |
+|                      | hyvinvointi.fi/site/w |                       |
+|                      | p-content/uploads/202 |                       |
+|                      | 4/12/hyvinvointikorti |                       |
+|                      | t_saavutettava.pdf).\ |                       |
+|                      | -- *Eller:* 1 vannkar |                       |
+|                      | delt av stor flokk,   |                       |
+|                      | og inspektøren så     |                       |
+|                      | hester bli jaget bort |                       |
+|                      | uten å få drikke.\    |                       |
+|                      | *(Alvorlig -- mange   |                       |
+|                      | hester kan ha vært    |                       |
+|                      | tørste.*              |                       |
++----------------------+-----------------------+-----------------------+
+| e                    | -- *Langvarig tørste  | 20                    |
+|                      | hos en betydelig      |                       |
+|                      | andel:* F.eks. 2--3   |                       |
+|                      | hester av 10 sto \>4t |                       |
+|                      | uten vann (≥15 %      |                       |
+|                      | rammet), eller 5 av   |                       |
+|                      | 30 sto hele dagen     |                       |
+|                      | uten (≈17%).\         |                       |
+|                      | -- *Eller:* Alle      |                       |
+|                      | utehester var uten    |                       |
+|                      | vann hele formiddagen |                       |
+|                      | en varm dag (få dyr,  |                       |
+|                      | men grovt brudd på    |                       |
+|                      | 4t-regel).\           |                       |
+|                      | -- *Eller:*           |                       |
+|                      | Kombinasjon av avvik: |                       |
+|                      | Dårlig vann + én      |                       |
+|                      | vannkilde i gruppe +  |                       |
+|                      | manuell vanning =\>   |                       |
+|                      | hester *faktisk       |                       |
+|                      | dehydrert* da vi      |                       |
+|                      | kom.\                 |                       |
+|                      | *(Meget alvorlig --   |                       |
+|                      | dokumentert tørste    |                       |
+|                      | blant dyrene.)*       |                       |
+|                      |                       |                       |
+|                      | 20                    |                       |
++----------------------+-----------------------+-----------------------+
+| f                    | -- *Nær total svikt:* | 5                     |
+|                      | F.eks.                |                       |
+|                      | vannforsyningen       |                       |
+|                      | sviktet i hele        |                       |
+|                      | stallen: ingen hester |                       |
+|                      | fikk vann på \>4--8   |                       |
+|                      | timer (eller          |                       |
+|                      | lenger).\             |                       |
+|                      | -- *Eller:*           |                       |
+|                      | Majoriteten av        |                       |
+|                      | hestene (over         |                       |
+|                      | halvparten) sto uten  |                       |
+|                      | vann store deler av   |                       |
+|                      | dagen.\               |                       |
+|                      | -- *Eller:* Ekstrem   |                       |
+|                      | vannkvalitetssvikt:   |                       |
+|                      | Flertallet av kar var |                       |
+|                      | fylt med møkk/alger   |                       |
+|                      | så hestene ikke       |                       |
+|                      | drakk.\               |                       |
+|                      | *(Katastrofalt --     |                       |
+|                      | mange eller alle      |                       |
+|                      | hester led av         |                       |
+|                      | tørste.)*             |                       |
++----------------------+-----------------------+-----------------------+
+
+**Kryssreferanser:** Dette skjemaet korresponderer med **B1-skjema
+"Vanntilførsel"** i den finske protokollen. Spørsmålene ovenfor
+reflekterer punktene i B1-skjemaet: [\[Wellfare a\...b dokument \|
+Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1),
+[\[Wellfare a\...b dokument \|
+Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1)
+
+-   "Antall hester med automatisk vs. manuelt vann", [\[Wellfare a\...b
+    dokument \|
+    Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1),
+    [\[Wellfare a\...b dokument \|
+    Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1)
+
+-   "Antall hester uten vann ved vurderingstidspunkt", [\[Wellfare
+    a\...b dokument \|
+    Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1)
+
+-   "Fikk de vann innen 4 timer" (Ja/Nei), [\[Wellfare a\...b dokument
+    \|
+    Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1)
+
+-   "Gruppehester har mer enn en vannkilde" (Ja/Nei), [\[Wellfare a\...b
+    dokument \|
+    Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1)
+
+-   "Vannflöde automatisk kar (L/min)". [\[Wellfare a\...b dokument \|
+    Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1)
+
+Når skjemaet er implementert digitalt, vil disse svarene automatisk
+mates inn i beregningsreglene slik at A3-poeng utledes korrekt. Skjemaet
+vil også gi brukeren løpende tilbakemelding -- for eksempel: **"A3 --
+Vanntilgang: 60 poeng (Kategori c)"** vises øverst mens man fyller ut,
+og oppdateres fortløpende. Varsler dukker opp dersom det er inkonsistens
+(f.eks. summen automatisk+manuell ≠ total hester, eller "nei" på
+vannkvalitet uten at antall berørte er oppgitt). [\[Wellfare a\...b
+dokument \|
+Word\]](https://nhest.sharepoint.com/sites/Fellesmapper/_layouts/15/Doc.aspx?sourcedoc=%7BA102913D-6C2E-4F3A-8C89-226CD3662832%7D&file=Wellfare%20assessment%20forms%20arb%20dokument.docx&action=default&mobileredirect=true&DefaultItemOpen=1)
+
+Til slutt integreres denne A3-scoren i en samleverscore for
+hestevelferden, sammen med de øvrige indikatorene (A1 hold, A2 fôring,
+B- og C- og D-kategorier, etc.). A3 er én av flere brikker som til
+sammen gir et helhetsbilde av stallens velferdsnivå.
