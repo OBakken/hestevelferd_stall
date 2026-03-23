@@ -7641,7 +7641,20 @@ function updateK3GlobalScore() {
             
             // A13
             document.getElementById('expPastureDays').textContent = displayValue(k4State.pasture.days);
-            
+
+            // A14 – Påsalingsatferd (data fra k3State)
+            if (typeof k3State !== 'undefined') {
+                if (k3State.saddlingRelevant) {
+                    document.getElementById('expSaddlingN').textContent = k3State.saddlingN || '—';
+                    document.getElementById('expSaddlingMild').textContent = k3State.saddlingMild;
+                    document.getElementById('expSaddlingSevere').textContent = k3State.saddlingSevere;
+                } else {
+                    document.getElementById('expSaddlingN').textContent = 'NA';
+                    document.getElementById('expSaddlingMild').textContent = 'NA';
+                    document.getElementById('expSaddlingSevere').textContent = 'NA';
+                }
+            }
+
             // A15
             document.getElementById('expVaaPlus').textContent = displayValue(k4State.vaa.plus);
             document.getElementById('expVaaMinus').textContent = displayValue(k4State.vaa.minus);
