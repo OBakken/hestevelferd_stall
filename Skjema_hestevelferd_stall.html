@@ -6836,31 +6836,44 @@ I SKJEMAET:
             // Score-beregning med FINSK INLINE-kode (identisk med finsk nettside)
             
             // Skader-indeks (Idx5: injuries)
-            const skinMildPct = (totals.skinMild + totals.swellingCold + totals.scratch) / N;
-            const skinSeverePct = (totals.skinSevere + totals.swellingWarm) / N;
-            // Halthet inkluderer kaviovauriot (hoof) — WQ "Absence of injuries" = integument + lameness
-            const lamenessPct = (totals.lameness + totals.hoof) / N;
-            
-            let skinScore, lamenessScore, injuryScore;
-            if (typeof WQ !== 'undefined' && WQ.spline) {
-                // Hudskader: Indeks = 100 - (mild*0.2 + severe*1)*100
-                const skinI = Math.max(0, 100 - ((skinMildPct * 0.2 + skinSeverePct * 1.0) * 100));
-                skinScore = WQ.spline(skinI, 65, 
-                    { a: 0, b: 0.4353924567, c: -0.0066983455, d: 0.0001281117 },
-                    { a: 29.8965836056, b: -0.9444498651, c: 0.0145299979, d: 0.0000192484 });
-                
-                // Halthet: Indeks = 100 - %halte
-                const lameI = 100 - (lamenessPct * 100);
-                lamenessScore = WQ.spline(lameI, 78,
-                    { a: 0, b: 0.0750111002, c: -0.0000242066, d: 0.0000449587 },
-                    { a: -2129.5217776808, b: 81.9796965434, c: -1.0500842958, d: 0.0045323951 });
-                
-                // Kombinér med Choquet (µ_skin=0.31, µ_lameness=0.56)
-                const injScores = [{ s: skinScore, mu: 0.31 }, { s: lamenessScore, mu: 0.56 }].sort((a,b) => a.s - b.s);
-                injuryScore = injScores[0].s + (injScores[1].s - injScores[0].s) * injScores[1].mu;
-            } else {
-                injuryScore = Math.max(0, 100 - ((skinMildPct + skinSeverePct * 3 + lamenessPct * 2) * 100));
-            }
+            // UVERIFISERT: per-type tilnærming, må finjusteres mot finsk nettside
+            // Hver skadetype beregnes separat (WQ integument-formel per type),
+            // deretter tas min — skadetypene overlapper (én hest kan ha flere funn).
+            // Scratch (hankausjälki) scores alltid som alvorlig (severity 2) per protokollen.
+            const integSplineCoeffs = {
+                low:  { a: 0, b: 0.4353924567, c: -0.0066983455, d: 0.0001281117 },
+                high: { a: 29.8965836056, b: -0.9444498651, c: 0.0145299979, d: 0.0000192484 }
+            };
+            const integSpline = function(I) {
+                if (typeof WQ !== 'undefined' && WQ.spline) {
+                    return WQ.spline(I, 65, integSplineCoeffs.low, integSplineCoeffs.high);
+                }
+                const c = I <= 65 ? integSplineCoeffs.low : integSplineCoeffs.high;
+                return Math.max(0, Math.min(100, c.a + c.b*I + c.c*I*I + c.d*I*I*I));
+            };
+
+            // Per-type WQ integument: I = 100 - (%mild*0.2 + %severe*1.0)*100
+            // a) Ihovauriot: mild=skinMild, severe=skinSevere
+            const I_skin = Math.max(0, 100 - ((totals.skinMild/N)*20 + (totals.skinSevere/N)*100));
+            // b) Turvotukset: mild=swellingCold, severe=swellingWarm
+            const I_swell = Math.max(0, 100 - ((totals.swellingCold/N)*20 + (totals.swellingWarm/N)*100));
+            // c) Kaviovauriot: alltid severe (binary)
+            const I_hoof = Math.max(0, 100 - (totals.hoof/N)*100);
+            // d) Hankausjäljet (scratch): alltid severe per protokoll
+            const I_scratch = Math.max(0, 100 - (totals.scratch/N)*100);
+
+            const s_skin = integSpline(I_skin);
+            const s_swell = integSpline(I_swell);
+            const s_hoof = integSpline(I_hoof);
+            const s_scratch = integSpline(I_scratch);
+
+            let skinScore = Math.min(s_skin, s_swell, s_hoof, s_scratch);
+
+            // Hesteprotokollen: Idx5 = kun integument (min av 4 typer).
+            // Lameness (ontuminen) er IKKE i Idx5 — Taulukko 10 plasserer den under Ei sairauksia.
+            // Bevis: med cattle-Choquet (µ_lame=0.56) og lameness=100 er min mulig Idx5=56,
+            // men finsk gir 35.4. Choquet med lameness er derfor ikke i bruk.
+            let injuryScore = skinScore;
             
             // Sykdom-indeks (Idx7: disease) — Warning/Alarm + cattle disease spline (knot=65)
             // WQ protocol: 3 GROUPED areas (ORL, Respiratory, Diarrhoea) — kolikk er flyttet til Idx6
@@ -6974,9 +6987,8 @@ I SKJEMAET:
   nasCl=${totals.nasalClear} nasTh=${totals.nasalThick} eyeCl=${totals.eyeClear} eyeTh=${totals.eyeThick} cough=${totals.cough} diar=${totals.diarrhoea}
   back=${totals.back} tack=${totals.tack} mouthM=${totals.mouthMild} mouthS=${totals.mouthSevere} mouthNA=${totals.mouthNA} colic=${k3State.colic}
   saddM=${k3State.saddlingMild} saddS=${k3State.saddlingSevere} hgsM=${k3State.hgsMild} hgsS=${k3State.hgsSevere}
-<b>IDX5 INJURY:</b> skinMildPct=${skinMildPct.toFixed(4)} skinSeverePct=${skinSeverePct.toFixed(4)} lamenessPct(+hoof)=${lamenessPct.toFixed(4)}
-  skinI=${typeof skinScore !== 'undefined' ? (100-((skinMildPct*0.2+skinSeverePct*1.0)*100)).toFixed(1) : '?'} skinScore=${typeof skinScore !== 'undefined' ? skinScore.toFixed(1) : '?'} lameScore=${typeof lamenessScore !== 'undefined' ? lamenessScore.toFixed(1) : '?'}
-  → injuryScore = <b>${injuryScore.toFixed(1)}</b>
+<b>IDX5 INJURY (per-type min, ingen Choquet):</b> skin:I=${I_skin.toFixed(1)}→${s_skin.toFixed(1)} swell:I=${I_swell.toFixed(1)}→${s_swell.toFixed(1)} hoof:I=${I_hoof.toFixed(1)}→${s_hoof.toFixed(1)} scratch:I=${I_scratch.toFixed(1)}→${s_scratch.toFixed(1)}
+  → injuryScore = min = <b>${injuryScore.toFixed(1)}</b>
 <b>IDX6 OTHER PAIN:</b> HGS: mild=${k3State.hgsMild} severe=${k3State.hgsSevere} N_hgs=${N_hgs}
   hgsIdx=${N_hgs>0 ? (100-((k3State.hgsMild*0.5+k3State.hgsSevere*1.0)/N_hgs)*100).toFixed(1) : 'n/a'}
   colic=${k3State.colic}/${k3State.totalHorses} → colicIdx=${k3State.totalHorses>0 ? (100-(k3State.colic/k3State.totalHorses)*100).toFixed(1) : 'n/a'}
