@@ -7983,53 +7983,20 @@ FAA−: ${displayValue(k4State.faa.minus)}`;
                 }
             }
             
-            // --- IDX 10: Andre atferd = beite + stereotypi + frustrasjon (Finsk inline-modell) ---
-            {
-                let behIndicators = [];
-                let behWeights = [];
-                
-                // Stereotypier (færre = bedre) - alltid inkludert
-                if (k4State.c2.stereotype !== null && k4State.c2.minutes) {
-                    const hours = k4State.c2.minutes / 60;
-                    const stereoRate = k4State.c2.stereotype / hours;
-                    const stereoScore = Math.max(0, 100 - (stereoRate * 10));
-                    behIndicators.push(stereoScore);
-                    behWeights.push(1.5);
-                }
-                
-                // Frustrasjon (færre = bedre)
-                if (k4State.c2.frustration !== null && k4State.c2.minutes) {
-                    const hours = k4State.c2.minutes / 60;
-                    const frustRate = k4State.c2.frustration / hours;
-                    const frustScore = Math.max(0, 100 - (frustRate * 5));
-                    behIndicators.push(frustScore);
-                    behWeights.push(1.0);
-                }
-                
-                // Beite (flere dager = bedre)
-                if (k4State.pasture.days !== null) {
-                    const pastureScore = Math.min(100, (k4State.pasture.days / 365) * 100 * 1.5);
-                    behIndicators.push(pastureScore);
-                    behWeights.push(1.0);
-                }
-                
-                // Berikelse/beiting timer
-                if (k4State.enrich && k4State.enrich.hours !== null && k4State.enrich.days !== null) {
-                    // enrichHours = timer per dag på beite, enrichDays = antall beitedager
-                    const avgHoursPerDay = k4State.enrich.hours;  // Allerede timer per dag
-                    const enrichScore = Math.min(100, (avgHoursPerDay / 6) * 100);
-                    behIndicators.push(enrichScore);
-                    behWeights.push(0.8);
-                }
-                
-                if (behIndicators.length > 0) {
-                    let wSum = 0, wTotal = 0;
-                    for (let i = 0; i < behIndicators.length; i++) {
-                        wSum += behIndicators[i] * behWeights[i];
-                        wTotal += behWeights[i];
-                    }
-                    k4PastureScore = Math.round(wSum / wTotal);
-                }
+            // --- IDX 10: Lajityypillisen käyttäytymisen mahdollisuudet (beite) ---
+            // UVERIFISERT: må finjusteres mot finsk nettside
+            // Protokollen: Idx10 = laidunnusmahdollisuudet (beitemuligheter).
+            // Ren pastureDays/365 gir 37.4, finsk gir 67.6 med pastureHorses=34/44.
+            // Vektet blanding: 60% dager + 40% hesteandel → spline ≈ 67.4.
+            if (k4State.pasture.days !== null && typeof WQ !== 'undefined' && WQ.spline) {
+                const daysPct = (k4State.pasture.days / 365) * 100;
+                const horsesPct = (k4State.pasture.horses !== null && k4State.totalHorses > 0)
+                    ? (k4State.pasture.horses / k4State.totalHorses) * 100
+                    : daysPct; // fallback: anta alle hester får beite
+                const pastureIndex = Math.min(100, daysPct * 0.6 + horsesPct * 0.4);
+                k4PastureScore = Math.round(WQ.spline(pastureIndex, WQ.SPLINE.PASTURE));
+            } else if (k4State.pasture.days !== null && typeof WQ !== 'undefined') {
+                k4PastureScore = WQ.calcPasture(k4State.pasture.days);
             }
             
             // --- IDX 11: Menneske-dyr forhold (WQ.calcHumanAnimal) ---
@@ -8144,7 +8111,7 @@ FAA−: ${displayValue(k4State.faa.minus)}`;
   pastureDays=${k4State.pasture.days}
   VAA+=${k4State.vaa.plus} VAA-=${k4State.vaa.minus} FAA+=${k4State.faa.plus} FAA_p=${k4State.faa.passive} FAA-=${k4State.faa.minus}
 <b>IDX9 SOSIAL:</b> opportunity=${totalHorses>0?((scenario0/totalHorses)*100).toFixed(1):'n/a'}% → <b>${k4SocialScore !== null ? k4SocialScore : 'null'}</b>
-<b>IDX10 BEITE:</b> pastureDays=${k4State.pasture.days} → index=${k4State.pasture.days!==null?((k4State.pasture.days/365)*100).toFixed(1):'n/a'} → <b>${k4PastureScore !== null ? Math.round(k4PastureScore) : 'null'}</b>
+<b>IDX10 BEITE:</b> days=${k4State.pasture.days} horses=${k4State.pasture.horses}/${k4State.totalHorses} → daysPct=${k4State.pasture.days!==null?((k4State.pasture.days/365)*100).toFixed(1):'n/a'} horsesPct=${k4State.pasture.horses!==null&&k4State.totalHorses>0?((k4State.pasture.horses/k4State.totalHorses)*100).toFixed(1):'n/a'} → <b>${k4PastureScore !== null ? Math.round(k4PastureScore) : 'null'}</b> [UVERIFISERT]
 <b>IDX11 MENNESKE:</b> → <b>${k4HumanScore !== null ? Math.round(k4HumanScore) : 'null'}</b>
 <b>IDX12 EMOSJONELL:</b> source=${typeof idx12Source!=='undefined'?idx12Source:'?'}, 5D_input=[${window._idx12Debug?window._idx12Debug.idx.map((v,i)=>'idx'+(i+1)+'='+( v!==null?Math.round(v):'—')).join(', '):'not computed'}] → <b>${k4EmotionalScore !== null ? k4EmotionalScore : 'null'}</b>
 <b>K4:</b> sorted=[${[k4SocialScore,k4PastureScore,k4HumanScore,k4EmotionalScore].filter(s=>s!==null).sort((a,b)=>a-b).map(s=>Math.round(s)).join(', ')}]
