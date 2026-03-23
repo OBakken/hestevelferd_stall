@@ -386,7 +386,7 @@ const WQ = {
     // BCS-score (K1)
     calculateBcsScore: function(counts, N) {
         if (N < 1) return null;
-        const severeSum = (counts.bcs1 || 0) * 1.0 + (counts.bcs2 || 0) * 0.25 + (counts.bcs5 || 0) * 0.5;
+        const severeSum = (counts.bcs1 || 0) * 1.0 + (counts.bcs2 || 0) * 0.25 + (counts.bcs4 || 0) * 0.10 + (counts.bcs5 || 0) * 0.5;
         const R = 100 - (severeSum / N) * 100;
         const c = this.SPLINE_COEFFS.bcs;
         return this.spline(R, c.knot, c.low, c.high);
@@ -3356,10 +3356,10 @@ Object.assign(WQ, {
     // ============================================
     
     // C1: Kuntoluokka/BCS - Ei pitkittynyttÃ¤ nÃ¤lkÃ¤Ã¤
-    // Vekting fra finsk protokoll: KL1=1.0, KL2=0.25, KL3=0, KL4=0, KL5=0.5
+    // Vekting fra finsk protokoll: KL1=1.0, KL2=0.25, KL3=0, KL4=0.10, KL5=0.5
     calcBCS: function(kl1, kl2, kl3, kl4, kl5, N) {
         if (N <= 0) return null;
-        const severitySum = (kl1 * 1.0) + (kl2 * 0.25) + (kl5 * 0.5);
+        const severitySum = (kl1 * 1.0) + (kl2 * 0.25) + (kl4 * 0.10) + (kl5 * 0.5);
         const R = 100 - (severitySum / N) * 100;
         return this.spline(R, this.SPLINE.BCS);
     },
@@ -4428,8 +4428,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 padded = true;
             }
 
-            // Vekting av holdklassene (KL1=1.0, KL2=0.25, KL3=0, KL4=0, KL5=0.5)
-            const weightedBad = (1.0 * bcs1) + (0.25 * bcs2) + (0.5 * bcs5);
+            // Vekting av holdklassene (KL1=1.0, KL2=0.25, KL3=0, KL4=0.10, KL5=0.5)
+            const weightedBad = (1.0 * bcs1) + (0.25 * bcs2) + (0.10 * bcs4) + (0.5 * bcs5);
             
             // R = andel "normale" (100 - prosent vakavien havaintojen)
             const R = 100 - (weightedBad / N) * 100;
@@ -6810,7 +6810,7 @@ I SKJEMAET:
             // Score-beregning med FINSK INLINE-kode (identisk med finsk nettside)
             
             // Skader-indeks (Idx5: injuries)
-            const skinMildPct = (totals.skinMild + totals.swellingCold) / N;
+            const skinMildPct = (totals.skinMild + totals.swellingCold + totals.scratch) / N;
             const skinSeverePct = (totals.skinSevere + totals.swellingWarm) / N;
             // Halthet inkluderer kaviovauriot (hoof) — WQ "Absence of injuries" = integument + lameness
             const lamenessPct = (totals.lameness + totals.hoof) / N;
@@ -6837,7 +6837,7 @@ I SKJEMAET:
             }
             
             // Sykdom-indeks (Idx7: disease) — Warning/Alarm + cattle disease spline (knot=65)
-            // WQ protocol: 4 GROUPED areas (ORL, Respiratory, Diarrhoea, Colic)
+            // WQ protocol: 3 GROUPED areas (ORL, Respiratory, Diarrhoea) — kolikk er flyttet til Idx6
             const totalNasal = totals.nasalClear + totals.nasalThick;
             const totalEye = totals.eyeClear + totals.eyeThick;
             const nasalPct = (totalNasal / N) * 100;
@@ -6845,8 +6845,8 @@ I SKJEMAET:
             const coughPctD = (totals.cough / N) * 100;
             const diarPctD = (totals.diarrhoea / N) * 100;
             const colicPctD = k3State.totalHorses > 0 ? (k3State.colic / k3State.totalHorses) * 100 : 0;
-            
-            // 4 grouped areas, ELSE-style: alarm overrides warning per area
+
+            // 3 grouped areas, ELSE-style: alarm overrides warning per area
             let dWarnings = 0, dAlarms = 0;
             // Area 1: ORL (nasal + eye combined — take worst)
             const nasalW = nasalPct > 5, nasalA = nasalPct > 10;
@@ -6856,69 +6856,88 @@ I SKJEMAET:
             if (coughPctD > 6) dAlarms++; else if (coughPctD > 3) dWarnings++;
             // Area 3: Diarrhoea
             if (diarPctD > 6.5) dAlarms++; else if (diarPctD > 3) dWarnings++;
-            // Area 4: Colic
-            if (colicPctD > 5) dAlarms++; else if (colicPctD > 2) dWarnings++;
-            
-            const diseaseIdx = 100 - ((dWarnings + 3 * dAlarms) / (4 * 3)) * 100;
-            // Cattle disease spline (knot=65)
+
+            const diseaseIdx = 100 - ((dWarnings + 3 * dAlarms) / (3 * 3)) * 100;
+            // WQ disease spline (knot=70) — fra WQ.SPLINE.DISEASE
             let diseaseScore;
-            if (diseaseIdx <= 65) {
-                diseaseScore = 0.5280510652*diseaseIdx + (-0.0036474543)*diseaseIdx*diseaseIdx + 0.0000595889*diseaseIdx*diseaseIdx*diseaseIdx;
+            if (diseaseIdx <= 70) {
+                diseaseScore = 0.39094656*diseaseIdx + 0.00217984*diseaseIdx*diseaseIdx + 0.000030794*diseaseIdx*diseaseIdx*diseaseIdx;
             } else {
-                diseaseScore = -154.2417024020 + 7.6468988725*diseaseIdx + (-0.1131681899)*diseaseIdx*diseaseIdx + 0.0006212337*diseaseIdx*diseaseIdx*diseaseIdx;
+                diseaseScore = -105.607674 + 4.91698974*diseaseIdx + (-0.06247792)*diseaseIdx*diseaseIdx + 0.00033869*diseaseIdx*diseaseIdx*diseaseIdx;
             }
             diseaseScore = Math.max(0, Math.min(100, diseaseScore));
             
-            // Smerte fra bruk-indeks (Idx8: mgmtPain) — WQ-indeks + LAMENESS spline(knot=78)
+            // Smerte fra bruk-indeks (Idx8: mgmtPain) — munn + påsaling + rygg + trykkmerker
+            // Alle sub-indikatorer bruker LAMENESS spline (knot=78), resultat = min(alle)
             let painMgmtScore = 100;
             let mgmtScores = [];
+            const lameSpline = function(idx) {
+                let s;
+                if (idx <= 78) {
+                    s = 0.0750111002*idx + (-0.0000242066)*idx*idx + 0.0000449587*idx*idx*idx;
+                } else {
+                    s = -2129.5217776808 + 81.9796965434*idx + (-1.0500842958)*idx*idx + 0.0045323951*idx*idx*idx;
+                }
+                return Math.max(0, Math.min(100, s));
+            };
             if (N_mouth > 0) {
                 const mouthIdx = 100 - ((totals.mouthMild * 0.5 + totals.mouthSevere * 1.0) / N_mouth) * 100;
-                // LAMENESS spline (knot=78)
-                let mouthSpline;
-                if (mouthIdx <= 78) {
-                    mouthSpline = 0.0750111002*mouthIdx + (-0.0000242066)*mouthIdx*mouthIdx + 0.0000449587*mouthIdx*mouthIdx*mouthIdx;
-                } else {
-                    mouthSpline = -2129.5217776808 + 81.9796965434*mouthIdx + (-1.0500842958)*mouthIdx*mouthIdx + 0.0045323951*mouthIdx*mouthIdx*mouthIdx;
-                }
-                mgmtScores.push(Math.max(0, Math.min(100, mouthSpline)));
+                mgmtScores.push(lameSpline(mouthIdx));
             }
             if (N_saddling > 0 && k3State.saddlingRelevant) {
                 const saddIdx = 100 - ((k3State.saddlingMild * 0.5 + k3State.saddlingSevere * 1.0) / N_saddling) * 100;
-                let saddSpline;
-                if (saddIdx <= 78) {
-                    saddSpline = 0.0750111002*saddIdx + (-0.0000242066)*saddIdx*saddIdx + 0.0000449587*saddIdx*saddIdx*saddIdx;
-                } else {
-                    saddSpline = -2129.5217776808 + 81.9796965434*saddIdx + (-1.0500842958)*saddIdx*saddIdx + 0.0045323951*saddIdx*saddIdx*saddIdx;
-                }
-                mgmtScores.push(Math.max(0, Math.min(100, saddSpline)));
+                mgmtScores.push(lameSpline(saddIdx));
+            }
+            // Rygg (back) og trykkmerker (tack) — nye i Idx8
+            const backPct = (totals.back / N) * 100;
+            const tackPct = (totals.tack / N) * 100;
+            if (totals.back > 0 || totals.tack > 0) {
+                const backIdx = 100 - backPct;
+                const tackIdx = 100 - tackPct;
+                mgmtScores.push(lameSpline(backIdx));
+                mgmtScores.push(lameSpline(tackIdx));
             }
             painMgmtScore = mgmtScores.length > 0 ? Math.round(Math.min(...mgmtScores)) : 100;
             
-            // Annen smerte-indeks (Idx6: otherPain) — rygg + utstyr + HGS
+            // Annen smerte-indeks (Idx6: otherPain) — HGS + kolikk
             let otherPainScore = 100;
-            const backPct = (totals.back / N) * 100;
-            const tackPct = (totals.tack / N) * 100;
-            otherPainScore = Math.max(0, 100 - (backPct * 2) - (tackPct * 1.5));
+            let otherPainScores = [];
             if (N_hgs > 0) {
-                const hgsSeverePct = (k3State.hgsSevere / N_hgs) * 100;
-                const hgsMildPct = (k3State.hgsMild / N_hgs) * 100;
-                const hgsScore = Math.max(0, 100 - (hgsSeverePct * 3) - (hgsMildPct * 1));
-                otherPainScore = Math.min(otherPainScore, hgsScore);
+                const hgsIdx = 100 - ((k3State.hgsMild * 0.5 + k3State.hgsSevere * 1.0) / N_hgs) * 100;
+                otherPainScores.push(Math.max(0, hgsIdx));
             }
+            if (k3State.totalHorses > 0) {
+                const colicIdx = 100 - (k3State.colic / k3State.totalHorses) * 100;
+                otherPainScores.push(Math.max(0, colicIdx));
+            }
+            otherPainScore = otherPainScores.length > 0 ? Math.round(Math.min(...otherPainScores)) : 100;
             
-            // K3 kombinasjon — vektet gjennomsnitt (dårligste teller mest)
+            // K3 kombinasjon — Choquet-integral med finske kapasiteter (Taulukko 18)
             let score;
             const indexScores = [injuryScore, otherPainScore, diseaseScore, painMgmtScore];
-            
-            // Sorter lavest først, vekt [0.35, 0.30, 0.20, 0.15]
-            indexScores.sort((a, b) => a - b);
-            const weights = [0.35, 0.30, 0.20, 0.15];
-            let weightedScore = 0;
-            for (let i = 0; i < indexScores.length; i++) {
-                weightedScore += indexScores[i] * weights[i];
+
+            if (typeof WQ !== 'undefined' && WQ.calcK3) {
+                score = WQ.calcK3(injuryScore, otherPainScore, diseaseScore, painMgmtScore);
+            } else {
+                // Fallback: manuell Choquet med K3-kapasiteter
+                const caps = {
+                    mu1: 0.08, mu2: 0.21, mu3: 0.12, mu4: 0.17,
+                    mu12: 0.28, mu13: 0.21, mu14: 0.25, mu23: 0.32, mu24: 0.39, mu34: 0.28,
+                    mu123: 0.42, mu124: 0.48, mu134: 0.44, mu234: 0.52,
+                    mu1234: 1.0
+                };
+                const indexed = indexScores.map((s, i) => ({ score: s, idx: i + 1 }))
+                    .sort((a, b) => a.score - b.score);
+                let result = 0;
+                for (let i = 0; i < indexed.length; i++) {
+                    const diff = i === 0 ? indexed[i].score : indexed[i].score - indexed[i-1].score;
+                    const remaining = indexed.slice(i).map(x => x.idx).sort((a,b)=>a-b);
+                    const key = 'mu' + remaining.join('');
+                    const capacity = caps[key] !== undefined ? caps[key] : 1;
+                    result += diff * capacity;
+                }
+                score = Math.round(Math.max(0, Math.min(100, result)));
             }
-            score = Math.round(Math.max(0, Math.min(100, weightedScore)));
             
             // K3 DEBUG PANEL
             const k3Debug = document.getElementById('k3DebugPanel');
@@ -6932,17 +6951,19 @@ I SKJEMAET:
 <b>IDX5 INJURY:</b> skinMildPct=${skinMildPct.toFixed(4)} skinSeverePct=${skinSeverePct.toFixed(4)} lamenessPct(+hoof)=${lamenessPct.toFixed(4)}
   skinI=${typeof skinScore !== 'undefined' ? (100-((skinMildPct*0.2+skinSeverePct*1.0)*100)).toFixed(1) : '?'} skinScore=${typeof skinScore !== 'undefined' ? skinScore.toFixed(1) : '?'} lameScore=${typeof lamenessScore !== 'undefined' ? lamenessScore.toFixed(1) : '?'}
   → injuryScore = <b>${injuryScore.toFixed(1)}</b>
-<b>IDX6 OTHER PAIN:</b> backPct=${backPct.toFixed(1)}% tackPct=${tackPct.toFixed(1)}% → physScore=${(100-backPct*2-tackPct*1.5).toFixed(1)}
-  HGS: hgsMildPct=${N_hgs>0 ? ((k3State.hgsMild/N_hgs)*100).toFixed(1) : 'n/a'}% hgsSeverePct=${N_hgs>0 ? ((k3State.hgsSevere/N_hgs)*100).toFixed(1) : 'n/a'}%
-  → otherPainScore = <b>${otherPainScore.toFixed(1)}</b>
-<b>IDX7 DISEASE:</b> nasalPct=${nasalPct.toFixed(2)}% eyePct=${eyePct.toFixed(2)}% coughPct=${coughPctD.toFixed(2)}% diarPct=${diarPctD.toFixed(2)}% colicPct=${colicPctD.toFixed(2)}%
-  Warnings=${dWarnings} Alarms=${dAlarms} (4 grouped areas: ORL+Resp+Diar+Colic)
-  diseaseIdx=${diseaseIdx.toFixed(2)} → spline(knot=65) = <b>${diseaseScore.toFixed(1)}</b>
+<b>IDX6 OTHER PAIN:</b> HGS: mild=${k3State.hgsMild} severe=${k3State.hgsSevere} N_hgs=${N_hgs}
+  hgsIdx=${N_hgs>0 ? (100-((k3State.hgsMild*0.5+k3State.hgsSevere*1.0)/N_hgs)*100).toFixed(1) : 'n/a'}
+  colic=${k3State.colic}/${k3State.totalHorses} → colicIdx=${k3State.totalHorses>0 ? (100-(k3State.colic/k3State.totalHorses)*100).toFixed(1) : 'n/a'}
+  → otherPainScore = min(${otherPainScores.map(s=>s.toFixed(1)).join(', ')}) = <b>${otherPainScore.toFixed(1)}</b>
+<b>IDX7 DISEASE:</b> nasalPct=${nasalPct.toFixed(2)}% eyePct=${eyePct.toFixed(2)}% coughPct=${coughPctD.toFixed(2)}% diarPct=${diarPctD.toFixed(2)}%
+  Warnings=${dWarnings} Alarms=${dAlarms} (3 grouped areas: ORL+Resp+Diar — kolikk i Idx6)
+  diseaseIdx=${diseaseIdx.toFixed(2)} → spline(knot=70) = <b>${diseaseScore.toFixed(1)}</b>
 <b>IDX8 MGMT PAIN:</b> mouthMild=${totals.mouthMild} mouthSevere=${totals.mouthSevere} N_mouth=${N_mouth}
-  mouthIdx=${N_mouth>0 ? (100-((totals.mouthMild*0.5+totals.mouthSevere*1.0)/N_mouth)*100).toFixed(1) : 'n/a'} → lameSpline=${mgmtScores.length>0 ? mgmtScores[0].toFixed(1) : 'n/a'}
-  saddIdx=${N_saddling>0&&k3State.saddlingRelevant ? (100-((k3State.saddlingMild*0.5+k3State.saddlingSevere*1.0)/N_saddling)*100).toFixed(1) : 'n/a'} → lameSpline=${mgmtScores.length>1 ? mgmtScores[1].toFixed(1) : 'n/a'}
+  mouthIdx=${N_mouth>0 ? (100-((totals.mouthMild*0.5+totals.mouthSevere*1.0)/N_mouth)*100).toFixed(1) : 'n/a'}
+  saddIdx=${N_saddling>0&&k3State.saddlingRelevant ? (100-((k3State.saddlingMild*0.5+k3State.saddlingSevere*1.0)/N_saddling)*100).toFixed(1) : 'n/a'}
+  backPct=${backPct.toFixed(1)}% tackPct=${tackPct.toFixed(1)}% backIdx=${(100-backPct).toFixed(1)} tackIdx=${(100-tackPct).toFixed(1)}
   → painMgmtScore = min(${mgmtScores.map(s=>s.toFixed(1)).join(', ')}) = <b>${painMgmtScore.toFixed(1)}</b>
-<b>K3:</b> sorted=[${indexScores.map(s=>s.toFixed(1)).join(', ')}] weights=[0.35,0.30,0.20,0.15]
+<b>K3:</b> [Idx5=${injuryScore.toFixed(1)}, Idx6=${otherPainScore.toFixed(1)}, Idx7=${diseaseScore.toFixed(1)}, Idx8=${painMgmtScore.toFixed(1)}] → Choquet
   → K3 = <b>${score}</b>`;
             }
             
