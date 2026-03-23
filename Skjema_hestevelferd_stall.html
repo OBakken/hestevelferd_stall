@@ -3920,6 +3920,19 @@ function loadData() {
             el.dispatchEvent(new Event('change', { bubbles: true }));
         }
     });
+    // Synkroniser readonly K3-felt til k3State (DOM → state)
+    if (typeof k3State !== 'undefined') {
+        k3State.saddlingN = parseInt(document.getElementById('saddlingN')?.value) || 0;
+        k3State.saddlingNormal = parseInt(document.getElementById('saddlingNormal')?.value) || 0;
+        k3State.saddlingMild = parseInt(document.getElementById('saddlingMild')?.value) || 0;
+        k3State.saddlingSevere = parseInt(document.getElementById('saddlingSevere')?.value) || 0;
+        k3State.hgsN = parseInt(document.getElementById('hgsN')?.value) || 0;
+        k3State.hgsLow = parseInt(document.getElementById('hgsLow')?.value) || 0;
+        k3State.hgsMild = parseInt(document.getElementById('hgsMild')?.value) || 0;
+        k3State.hgsSevere = parseInt(document.getElementById('hgsSevere')?.value) || 0;
+        const saddRel = document.querySelector('input[name="saddlingRelevant"]:checked');
+        if (saddRel) k3State.saddlingRelevant = saddRel.value === 'yes';
+    }
     if (data.globalScores) Object.assign(globalScores, data.globalScores);
     updateGlobalScorePanel();
     alert('Lastet!');
@@ -3997,6 +4010,19 @@ function loadSnapshot(id) {
             el.dispatchEvent(new Event('change', { bubbles: true }));
         }
     });
+    // Synkroniser readonly K3-felt til k3State (DOM → state)
+    if (typeof k3State !== 'undefined') {
+        k3State.saddlingN = parseInt(document.getElementById('saddlingN')?.value) || 0;
+        k3State.saddlingNormal = parseInt(document.getElementById('saddlingNormal')?.value) || 0;
+        k3State.saddlingMild = parseInt(document.getElementById('saddlingMild')?.value) || 0;
+        k3State.saddlingSevere = parseInt(document.getElementById('saddlingSevere')?.value) || 0;
+        k3State.hgsN = parseInt(document.getElementById('hgsN')?.value) || 0;
+        k3State.hgsLow = parseInt(document.getElementById('hgsLow')?.value) || 0;
+        k3State.hgsMild = parseInt(document.getElementById('hgsMild')?.value) || 0;
+        k3State.hgsSevere = parseInt(document.getElementById('hgsSevere')?.value) || 0;
+        const saddRel = document.querySelector('input[name="saddlingRelevant"]:checked');
+        if (saddRel) k3State.saddlingRelevant = saddRel.value === 'yes';
+    }
     if (data.globalScores) Object.assign(globalScores, data.globalScores);
     updateGlobalScorePanel();
     alert('Lastet inn: ' + (data.name || 'Vurdering'));
