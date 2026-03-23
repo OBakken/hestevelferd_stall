@@ -7959,31 +7959,26 @@ FAA−: ${displayValue(k4State.faa.minus)}`;
                 }
                 
                 // 3. C2 Sosial kvalitet (kun hvis socialEnabled)
-                // ⚠️ TILNÆRMING — finsk formel er ukjent og gir avvik
-                // Testdata viser at total interaksjonsmengde senker score (modellen belønner "rolig flokk")
-                // Denne proxy-formelen er foreløpig og bør erstattes med kalibrert versjon
+                // Rater per hest per time (WQ-standard), base 80.
+                // Positive interaksjoner gir bonus, negative gir straff.
                 const c2Hours = k4State.c2.minutes ? k4State.c2.minutes / 60 : null;
                 const c2Horses = k4State.c2.horsesObserved || 1;
-                
+
                 if (socialEnabled && c2Hours && c2Hours > 0) {
                     const positive = k4State.c2.positive || 0;
                     const negMild = k4State.c2.negMild || 0;
                     const negStrong = k4State.c2.negStrong || 0;
-                    const totalInteractions = positive + negMild + negStrong;
-                    
-                    // Proxy basert på testdata: 0 hendelser→78, mer aktivitet→lavere score
-                    // Negativ atferd relativt til total er en liten formildende faktor
-                    let socialQualityScore;
-                    if (totalInteractions === 0) {
-                        socialQualityScore = 78;  // WQ standard: ingen observert atferd
-                    } else {
-                        // Rateberegning: hendelser per hest per time
-                        const totalRate = totalInteractions / (c2Hours * c2Horses);
-                        const negRate = (negMild + negStrong) / (c2Hours * c2Horses);
-                        // Base: start på 85, trekk for total aktivitet
-                        socialQualityScore = 85 - totalRate * 3.5 + negRate * 1.5;
-                        socialQualityScore = Math.max(20, Math.min(100, socialQualityScore));
-                    }
+
+                    const posRate = positive / (c2Hours * c2Horses);
+                    const mildNegRate = negMild / (c2Hours * c2Horses);
+                    const strongNegRate = negStrong / (c2Hours * c2Horses);
+
+                    let socialQualityScore = 80
+                        + Math.min(posRate * 30, 40)
+                        - mildNegRate * 20
+                        - strongNegRate * 60;
+                    socialQualityScore = Math.max(0, Math.min(100, socialQualityScore));
+
                     socialIndicators.push(socialQualityScore);
                     socialWeights.push(1.5);
                 }
@@ -8126,7 +8121,7 @@ FAA−: ${displayValue(k4State.faa.minus)}`;
   stereotype=${k4State.c2.stereotype}, frustration=${k4State.c2.frustration}
   pastureDays=${k4State.pasture.days}
   VAA+=${k4State.vaa.plus} VAA-=${k4State.vaa.minus} FAA+=${k4State.faa.plus} FAA_p=${k4State.faa.passive} FAA-=${k4State.faa.minus}
-<b>IDX9 SOSIAL:</b> opportunity=${totalHorses>0?((scenario0/totalHorses)*100).toFixed(1):'n/a'}% → <b>${k4SocialScore !== null ? k4SocialScore : 'null'}</b>
+<b>IDX9 SOSIAL:</b> opp=${totalHorses>0?((scenario0/totalHorses)*100).toFixed(1):'n/a'} indoor=${k4State.c1.indoor!==null?((k4State.c1.indoor/totalHorses)*100).toFixed(1):'n/a'} qual=base80 → <b>${k4SocialScore !== null ? k4SocialScore : 'null'}</b>
 <b>IDX10 BEITE:</b> days=${k4State.pasture.days} horses=${k4State.pasture.horses}/${k4State.totalHorses} → daysPct=${k4State.pasture.days!==null?((k4State.pasture.days/365)*100).toFixed(1):'n/a'} horsesPct=${k4State.pasture.horses!==null&&k4State.totalHorses>0?((k4State.pasture.horses/k4State.totalHorses)*100).toFixed(1):'n/a'} → <b>${k4PastureScore !== null ? Math.round(k4PastureScore) : 'null'}</b> [UVERIFISERT]
 <b>IDX11 MENNESKE:</b> → <b>${k4HumanScore !== null ? Math.round(k4HumanScore) : 'null'}</b>
 <b>IDX12 EMOSJONELL:</b> source=${typeof idx12Source!=='undefined'?idx12Source:'?'}, 5D_input=[${window._idx12Debug?window._idx12Debug.idx.map((v,i)=>'idx'+(i+1)+'='+( v!==null?Math.round(v):'—')).join(', '):'not computed'}] → <b>${k4EmotionalScore !== null ? k4EmotionalScore : 'null'}</b>
