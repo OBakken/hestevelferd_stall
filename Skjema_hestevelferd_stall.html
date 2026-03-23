@@ -4541,9 +4541,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         }
-        // UVERIFISERT: inne/ute-separasjon, må finjusteres mot finsk nettside
-        // Finsk logikk: beregn score per lokasjon (inne/ute) separat, ta min().
-        // autoOne-hester har auto på én lokasjon, manuelt (d=40) på den andre.
+        // KJENT AVVIK (Idx2): Gir 71, finsk gir 54. Gjenstående avvik skyldes at
+        // skjemaet bruker forenklet A–F kategorimodell, mens finsk nettside bruker
+        // komplekst beslutningstre med 16 situasjoner (A–P) basert på tid ute,
+        // vanntype per lokasjon, renhet osv. Krever omskriving av vannmodulen.
+        // Inne/ute-separasjon og GroupWater −10 er implementert.
         function calculateSingleLocationScore(auto, manual, none, total) {
             const pointsMap = { a: 100, b: 80, c: 60, d: 40, e: 20, f: 5 };
             let counts = { a: 0, b: 0, c: 0, d: 0, e: 0, f: 0 };
