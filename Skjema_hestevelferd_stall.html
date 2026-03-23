@@ -4541,72 +4541,86 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         }
+        // UVERIFISERT: inne/ute-separasjon, må finjusteres mot finsk nettside
+        // Finsk logikk: beregn score per lokasjon (inne/ute) separat, ta min().
+        // autoOne-hester har auto på én lokasjon, manuelt (d=40) på den andre.
+        function calculateSingleLocationScore(auto, manual, none, total) {
+            const pointsMap = { a: 100, b: 80, c: 60, d: 40, e: 20, f: 5 };
+            let counts = { a: 0, b: 0, c: 0, d: 0, e: 0, f: 0 };
+
+            if (auto > 0) {
+                const fr = k1State.flowRate;
+                if (fr !== null && fr >= 8) counts.a = auto;
+                else if (fr !== null && fr >= 5) counts.b = auto;
+                else if (fr !== null && fr >= 3) counts.c = auto;
+                else if (fr !== null) counts.e = auto;
+                else counts.b = auto; // flowRate ikke målt → anta b
+            }
+            counts.d = manual;
+            if (none > 0) {
+                // Hester uten vann: anta kort varighet → e, med mindre vi vet bedre
+                counts.e += none;
+            }
+
+            if (total <= 0) return null;
+
+            // 20%-terskelregel
+            if ((counts.f / total) * 100 >= 20) return 5;
+            if ((counts.e / total) * 100 >= 20) return 20;
+
+            // 75%-dominansregel
+            for (const cat of ['a', 'b', 'c', 'd']) {
+                if ((counts[cat] / total) * 100 >= 75) return pointsMap[cat];
+            }
+
+            // Vektet gjennomsnitt
+            let weightedSum = 0;
+            for (const cat of Object.keys(counts)) {
+                weightedSum += counts[cat] * pointsMap[cat];
+            }
+            return Math.round(weightedSum / total);
+        }
+
         function calculateWaterCategory() {
-            // FINSK BESLUTNINGSTRE – beregning av vannpoeng (ositus)
-            // Bruker direkte kategoritelling a–f fra revisor
             const N = k1State.totalHorses;
             if (N === 0) {
                 return { category: '—', points: null, reason: 'Fyll ut totalt antall hester først' };
             }
 
-            const counts = {
-                a: k1State.waterCatA,
-                b: k1State.waterCatB,
-                c: k1State.waterCatC,
-                d: k1State.waterCatD,
-                e: k1State.waterCatE,
-                f: k1State.waterCatF
-            };
-            const pointsMap = { a: 100, b: 80, c: 60, d: 40, e: 20, f: 5 };
-            
-            const sum = counts.a + counts.b + counts.c + counts.d + counts.e + counts.f;
-            if (sum === 0) {
+            const autoBoth = wState.autoBoth || 0;  // auto inne OG ute
+            const autoOne = wState.autoOne || 0;     // auto kun ett sted
+            const noneCount = wState.noneCount || 0;
+
+            const sum = k1State.waterCatA + k1State.waterCatB + k1State.waterCatC +
+                        k1State.waterCatD + k1State.waterCatE + k1State.waterCatF;
+            if (!wState.touched || sum === 0) {
                 return { category: '—', points: null, reason: 'Klassifiser hestene i kategorier a–f' };
             }
 
-            // === FINSK OSITUS-BEREGNING (3 regler i rekkefølge) ===
+            // Beregn inne og ute separat, ta min()
+            // Inne: autoBoth + autoOne har auto inne (konservativt: autoOne auto på en side)
+            // Ute: autoBoth har auto, autoOne har manuelt (d=40)
+            // (Symmetrisk: uansett hvilken side autoOne har auto, den andre får d)
+            const inneScore = calculateSingleLocationScore(
+                autoBoth + autoOne, // alle med auto har det inne
+                0,                   // ingen manuelt inne (de med auto)
+                noneCount,           // hester uten vann
+                N
+            );
+            const uteScore = calculateSingleLocationScore(
+                autoBoth,            // kun autoBoth har auto ute
+                autoOne,             // autoOne har manuelt ute (d=40)
+                noneCount,           // hester uten vann
+                N
+            );
 
-            // Huomio 1: Hvis ≥20% av hestene i e eller f → den kategorien gjelder direkte
-            const percF = (counts.f / sum) * 100;
-            const percE = (counts.e / sum) * 100;
-
-            if (percF >= 20) {
-                return { points: 5, reason: `${percF.toFixed(0)}% uten vann (mer enn 20%) gir 5 poeng`, category: 'f' };
-            }
-            if (percE >= 20) {
-                return { points: 20, reason: `${percE.toFixed(0)}% uten vann kort tid (mer enn 20%) gir 20 poeng`, category: 'e' };
-            }
-
-            // Huomio 2: Hvis ≥75% i én kategori → den gjelder
-            const reasonMap = {
-                a: 'automatisk, god strøm',
-                b: 'automatisk, lav strøm',
-                c: 'blandet (auto + manuelt)',
-                d: 'manuelt vann',
-                e: 'uten vann kort tid',
-                f: 'uten vann lenge'
-            };
-            for (const cat of ['a', 'b', 'c', 'd', 'e', 'f']) {
-                const perc = (counts[cat] / sum) * 100;
-                if (perc >= 75) {
-                    return { points: pointsMap[cat], reason: `${perc.toFixed(0)}% i kategori ${cat} gir ${pointsMap[cat]} poeng`, category: cat };
-                }
-            }
-
-            // Huomio 3: Ositus – vektet gjennomsnitt
-            let weightedSum = 0;
-            for (const cat of Object.keys(counts)) {
-                weightedSum += counts[cat] * pointsMap[cat];
-            }
-            const avgPoints = Math.round(weightedSum / sum);
+            const finalScore = (inneScore !== null && uteScore !== null)
+                ? Math.min(inneScore, uteScore)
+                : (inneScore || uteScore);
 
             // Bygg forklaring
-            const parts = [];
-            for (const cat of ['a', 'b', 'c', 'd', 'e', 'f']) {
-                if (counts[cat] > 0) parts.push(`${cat}:${counts[cat]}`);
-            }
-
-            return { points: avgPoints, reason: `Vektet gjennomsnitt (${parts.join(', ')}) gir ${avgPoints} poeng`, category: 'mix' };
+            const reason = `Inne=${inneScore}, Ute=${uteScore} → min=${finalScore}`;
+            return { points: finalScore, reason, category: 'inne/ute' };
         }
 
         function updateHelperCalculator() {
@@ -4875,9 +4889,9 @@ function updateK1GlobalScore() {
     if (waterScore === null || isNaN(waterScore)) waterScore = null;
     
     // 3b. GroupWater (A4): 0=bra (flere vannpunkter/ikke aktuelt), 2=dårlig (kun ett)
-    // Testet på finsk nettside: A4=0 → 60, A4=2 → 40 (dvs. −20 poeng)
+    // Straff −10 poeng for kun ett vannpunkt i gruppehold
     if (waterScore !== null && !isNaN(waterScore) && k1State.groupWater === 2) {
-        waterScore = Math.max(0, waterScore - 20);
+        waterScore = Math.max(0, waterScore - 10);
     }
     
     // 4. Beregn K1 med Choquet — full presisjon, vis delresultat om bare én indeks finnes
