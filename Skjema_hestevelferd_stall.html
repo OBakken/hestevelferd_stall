@@ -6891,8 +6891,10 @@ I SKJEMAET:
             // men finsk gir 35.4. Choquet med lameness er derfor ikke i bruk.
             let injuryScore = skinScore;
             
-            // Sykdom-indeks (Idx7: disease) — Warning/Alarm + cattle disease spline (knot=65)
-            // WQ protocol: 3 GROUPED areas (ORL, Respiratory, Diarrhoea) — kolikk er flyttet til Idx6
+            // Sykdom-indeks (Idx7: disease) — Warning/Alarm + disease spline (knot=70)
+            // 4 areas ELSE-style: ORL, Respiratory, Diarrhoea, Lameness
+            // Kolikk er i Idx6 (otherPain). Lameness (epäpuhdas liike) er under
+            // Ei sairauksia per Taulukko 10 i protokollen, ikke i Idx5.
             const totalNasal = totals.nasalClear + totals.nasalThick;
             const totalEye = totals.eyeClear + totals.eyeThick;
             const nasalPct = (totalNasal / N) * 100;
@@ -6900,8 +6902,9 @@ I SKJEMAET:
             const coughPctD = (totals.cough / N) * 100;
             const diarPctD = (totals.diarrhoea / N) * 100;
             const colicPctD = k3State.totalHorses > 0 ? (k3State.colic / k3State.totalHorses) * 100 : 0;
+            const lamenessPctD = (totals.lameness / N) * 100;
 
-            // 3 grouped areas, ELSE-style: alarm overrides warning per area
+            // 4 areas, ELSE-style: alarm overrides warning per area
             let dWarnings = 0, dAlarms = 0;
             // Area 1: ORL (nasal + eye combined — take worst)
             const nasalW = nasalPct > 5, nasalA = nasalPct > 10;
@@ -6911,8 +6914,10 @@ I SKJEMAET:
             if (coughPctD > 6) dAlarms++; else if (coughPctD > 3) dWarnings++;
             // Area 3: Diarrhoea
             if (diarPctD > 6.5) dAlarms++; else if (diarPctD > 3) dWarnings++;
+            // Area 4: Lameness (epäpuhdas liike)
+            if (lamenessPctD > 6) dAlarms++; else if (lamenessPctD > 3) dWarnings++;
 
-            const diseaseIdx = 100 - ((dWarnings + 3 * dAlarms) / (3 * 3)) * 100;
+            const diseaseIdx = 100 - ((dWarnings + 3 * dAlarms) / (4 * 3)) * 100;
             // WQ disease spline (knot=70) — fra WQ.SPLINE.DISEASE
             let diseaseScore;
             if (diseaseIdx <= 70) {
@@ -7023,8 +7028,8 @@ I SKJEMAET:
   hgsIdx=${N_hgs>0 ? (100-((k3State.hgsMild*0.5+k3State.hgsSevere*1.0)/N_hgs)*100).toFixed(1) : 'n/a'}
   colic=${k3State.colic}/${k3State.totalHorses} → colicIdx=${k3State.totalHorses>0 ? (100-(k3State.colic/k3State.totalHorses)*100).toFixed(1) : 'n/a'}
   → otherPainScore = min(${otherPainScores.map(s=>s.toFixed(1)).join(', ')}) = <b>${otherPainScore.toFixed(1)}</b>
-<b>IDX7 DISEASE:</b> nasalPct=${nasalPct.toFixed(2)}% eyePct=${eyePct.toFixed(2)}% coughPct=${coughPctD.toFixed(2)}% diarPct=${diarPctD.toFixed(2)}%
-  Warnings=${dWarnings} Alarms=${dAlarms} (3 grouped areas: ORL+Resp+Diar — kolikk i Idx6)
+<b>IDX7 DISEASE:</b> nasalPct=${nasalPct.toFixed(2)}% eyePct=${eyePct.toFixed(2)}% coughPct=${coughPctD.toFixed(2)}% diarPct=${diarPctD.toFixed(2)}% lamePct=${lamenessPctD.toFixed(2)}%
+  Warnings=${dWarnings} Alarms=${dAlarms} (4 areas: ORL+Resp+Diar+Lame — kolikk i Idx6)
   diseaseIdx=${diseaseIdx.toFixed(2)} → spline(knot=70) = <b>${diseaseScore.toFixed(1)}</b>
 <b>IDX8 MGMT PAIN:</b> mouthMild=${totals.mouthMild} mouthSevere=${totals.mouthSevere} N_mouth=${N_mouth}
   mouthIdx=${N_mouth>0 ? (100-((totals.mouthMild*0.5+totals.mouthSevere*1.0)/N_mouth)*100).toFixed(1) : 'n/a'}
