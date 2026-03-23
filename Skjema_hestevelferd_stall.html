@@ -6936,7 +6936,21 @@ I SKJEMAET:
                 mgmtScores.push(lameSpline(backIdx));
                 mgmtScores.push(lameSpline(tackIdx));
             }
-            painMgmtScore = mgmtScores.length > 0 ? Math.round(Math.min(...mgmtScores)) : 100;
+            // UVERIFISERT: kombinasjonsmetode, må finjusteres mot finsk nettside
+            // Math.min() gir for lavt resultat (3.6→4, finsk=11.7).
+            // Bruker Choquet-lignende kombinasjon: sortert stigende, hvert gap
+            // vektes med geometrisk avtagende faktor (0.5^k). Dette gir en
+            // mellomting mellom min og gjennomsnitt der verste måler dominerer.
+            if (mgmtScores.length > 0) {
+                const sorted = [...mgmtScores].sort((a, b) => a - b);
+                let result = sorted[0];
+                for (let i = 1; i < sorted.length; i++) {
+                    result += (sorted[i] - sorted[i - 1]) * Math.pow(0.5, i);
+                }
+                painMgmtScore = Math.round(Math.max(0, Math.min(100, result)));
+            } else {
+                painMgmtScore = 100;
+            }
             
             // Annen smerte-indeks (Idx6: otherPain) — HGS + kolikk
             let otherPainScore = 100;
@@ -7000,7 +7014,7 @@ I SKJEMAET:
   mouthIdx=${N_mouth>0 ? (100-((totals.mouthMild*0.5+totals.mouthSevere*1.0)/N_mouth)*100).toFixed(1) : 'n/a'}
   saddIdx=${N_saddling>0&&k3State.saddlingRelevant ? (100-((k3State.saddlingMild*0.5+k3State.saddlingSevere*1.0)/N_saddling)*100).toFixed(1) : 'n/a'}
   backPct=${backPct.toFixed(1)}% tackPct=${tackPct.toFixed(1)}% backIdx=${(100-backPct).toFixed(1)} tackIdx=${(100-tackPct).toFixed(1)}
-  → painMgmtScore = min(${mgmtScores.map(s=>s.toFixed(1)).join(', ')}) = <b>${painMgmtScore.toFixed(1)}</b>
+  → painMgmtScore = choquet-lik(${mgmtScores.map(s=>s.toFixed(1)).join(', ')}) = <b>${painMgmtScore.toFixed(1)}</b> [UVERIFISERT]
 <b>K3:</b> [Idx5=${injuryScore.toFixed(1)}, Idx6=${otherPainScore.toFixed(1)}, Idx7=${diseaseScore.toFixed(1)}, Idx8=${painMgmtScore.toFixed(1)}] → Choquet
   → K3 = <b>${score}</b>`;
             }
