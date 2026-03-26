@@ -1051,21 +1051,6 @@ const WQ = {
                     </div>
                 </div>
 
-                <!-- SPORSMAAL 3: Vannstrom (vises kun hvis automatisk vann finnes) -->
-                <div id="wStep3" class="water-step" style="display: none; padding: 1rem; border: 1px solid #93c5fd; background: #eff6ff; border-radius: 8px; margin-bottom: 0.75rem;">
-                    <p style="font-weight: 700; margin-bottom: 0.5rem;">Er vannstrømmen minst 8 liter per minutt?</p>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Bruk kalkulatoren under (seksjon f) for å måle. Gjelder trykkbaserte automatkar.</p>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" name="wFlow" id="wFlow1" value="yes">
-                            <label for="wFlow1"><span class="radio-marker"></span><span class="radio-title">Ja, minst 8 liter per minutt</span></label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" name="wFlow" id="wFlow0" value="no">
-                            <label for="wFlow0"><span class="radio-marker"></span><span class="radio-title">Nei, mindre enn 8 liter per minutt</span></label>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- RESULTAT: Manuelt vann (beregnet automatisk) -->
                 <div id="wManualResult" class="water-step" style="display: none; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.75rem; background: #f9fafb;">
@@ -1091,12 +1076,12 @@ const WQ = {
 
                 <div class="divider"></div>
 
-                <div class="section-title"><span class="letter">f</span> Vannstrøm – hjelpeverktøy</div>
+                <div id="wFlowSection" style="display: none;">
+                <div class="section-title"><span class="letter">f</span> Vannstrøm</div>
 
                 <div class="help-box">
                     <div class="help-box-title">Slik måler du vannstrøm</div>
-                    <p>Brukes for å avgjøre Steg 3 over: er strømmen minst 8 liter per minutt?</p>
-                    <p style="margin-top: 0.5rem;">Gjelder kun trykkbaserte automatkar (kopp/ventil). Mål minst 3 kar, bruk laveste verdi.</p>
+                    <p>Gjelder kun trykkbaserte automatkar (kopp/ventil). Mål minst 3 kar, bruk laveste verdi.</p>
                 </div>
 
                 <div class="flow-calc">
@@ -1133,6 +1118,7 @@ const WQ = {
                     </div>
                     <p id="waterScoreReason" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;"></p>
                     <p id="waterScoreTip" style="font-size: 0.8rem; color: var(--cat1); margin-top: 0.5rem; font-style: italic;"></p>
+                </div>
                 </div>
 
                 <div class="divider"></div>
@@ -4218,7 +4204,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('input[name="feedMethod"]').forEach(r => r.addEventListener('change', function() { k1State.feedMethod = parseInt(this.value); k1UpdateAll(); updateK1GlobalScore(); }));
 
         // === WATER WIZARD EVENT LISTENERS ===
-        const wState = { noneCount: 0, duration: null, autoBoth: 0, autoOne: 0, flowOk: null, touched: false };
+        const wState = { noneCount: 0, duration: null, autoBoth: 0, autoOne: 0, touched: false };
 
         function wUpdateCategories() {
             const N = k1State.totalHorses;
@@ -4236,11 +4222,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
 
-                // a/b fra automatisk begge steder
+                // a/b fra automatisk begge steder (utledet fra flowRate)
                 if (wState.autoBoth > 0) {
-                    if (wState.flowOk === 'yes') catA = wState.autoBoth;
-                    else if (wState.flowOk === 'no') catB = wState.autoBoth;
-                    // Hvis ikke svart ennå, fordeles ikke
+                    if (k1State.flowRate !== null && k1State.flowRate >= 8) catA = wState.autoBoth;
+                    else if (k1State.flowRate !== null && k1State.flowRate < 8) catB = wState.autoBoth;
+                    // flowRate ikke utfylt → fordeles ikke ennå
                 }
 
                 // c fra automatisk ett sted
@@ -4248,7 +4234,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // d = resten (kun hvis minst ett felt er besvart)
                 const withWater = N - (wState.noneCount > 0 ? wState.noneCount : 0);
-                const autoAssigned = (wState.flowOk !== null ? wState.autoBoth : 0) + wState.autoOne;
+                const autoAssigned = (k1State.flowRate !== null ? wState.autoBoth : 0) + wState.autoOne;
                 catD = Math.max(0, withWater - autoAssigned);
             }
 
@@ -4316,10 +4302,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const showStep2b = showStep2 && withWater > 0;
             document.getElementById('wStep2b').style.display = showStep2b ? 'block' : 'none';
 
-            // Steg 3: vannstrom (vis kun hvis automatisk vann finnes)
+            // Vannstrøm-seksjon: vis kun hvis trykkbaserte automater finnes
             const hasAuto = wState.autoBoth > 0;
-            document.getElementById('wStep3').style.display = hasAuto ? 'block' : 'none';
-            if (!hasAuto) wState.flowOk = null;
+            document.getElementById('wFlowSection').style.display = hasAuto ? 'block' : 'none';
         }
 
         document.getElementById('wNoneCount').addEventListener('input', function() {
@@ -4350,13 +4335,7 @@ document.addEventListener('DOMContentLoaded', function() {
             wUpdateCategories();
         });
 
-        document.querySelectorAll('input[name="wFlow"]').forEach(r => r.addEventListener('change', function() {
-            wState.touched = true;
-            wState.flowOk = this.value;
-            wUpdateCategories();
-        }));
-
-        document.getElementById('flowRate').addEventListener('input', function() { k1State.flowRate = parseFloat(this.value) || null; updateFlowResult(); k1UpdateAll(); updateK1GlobalScore(); });
+        document.getElementById('flowRate').addEventListener('input', function() { k1State.flowRate = parseFloat(this.value) || null; updateFlowResult(); wUpdateCategories(); k1UpdateAll(); updateK1GlobalScore(); });
         document.querySelectorAll('input[name="groupWater"]').forEach(r => r.addEventListener('change', function() { k1State.groupWater = parseInt(this.value); k1UpdateAll(); updateK1GlobalScore(); }));
 
         function updateSampleRecommendation() {
