@@ -4520,32 +4520,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         }
-        // KJENT AVVIK (Idx2): Gir 71, finsk gir 54. Gjenstående avvik skyldes at
-        // skjemaet bruker forenklet A–F kategorimodell, mens finsk nettside bruker
-        // komplekst beslutningstre med 16 situasjoner (A–P) basert på tid ute,
-        // vanntype per lokasjon, renhet osv. Krever omskriving av vannmodulen.
-        // Inne/ute-separasjon og GroupWater −10 er implementert.
-        function calculateSingleLocationScore(auto, manual, none, total) {
+        function calculateSingleLocationScore(counts, total) {
+            // counts = { a, b, c, d, e, f } for denne lokasjonen
             const pointsMap = { a: 100, b: 80, c: 60, d: 40, e: 20, f: 5 };
-            let counts = { a: 0, b: 0, c: 0, d: 0, e: 0, f: 0 };
-
-            if (auto > 0) {
-                const fr = k1State.flowRate;
-                if (fr !== null && fr >= 8) counts.a = auto;
-                else if (fr !== null && fr >= 5) counts.b = auto;
-                else if (fr !== null && fr >= 3) counts.c = auto;
-                else if (fr !== null) counts.e = auto;
-                else counts.b = auto; // flowRate ikke målt → anta b
-            }
-            counts.d = manual;
-            if (none > 0) {
-                // Hester uten vann: anta kort varighet → e, med mindre vi vet bedre
-                counts.e += none;
-            }
 
             if (total <= 0) return null;
 
-            // 20%-terskelregel
+            // 20%-terskelregel (sjekk f før e)
             if ((counts.f / total) * 100 >= 20) return 5;
             if ((counts.e / total) * 100 >= 20) return 20;
 
@@ -4578,22 +4559,48 @@ document.addEventListener('DOMContentLoaded', function() {
                 return { category: '—', points: null, reason: 'Klassifiser hestene i kategorier a–f' };
             }
 
-            // Beregn inne og ute separat, ta min()
-            // Inne: autoBoth + autoOne har auto inne (konservativt: autoOne auto på en side)
-            // Ute: autoBoth har auto, autoOne har manuelt (d=40)
-            // (Symmetrisk: uansett hvilken side autoOne har auto, den andre får d)
-            const inneScore = calculateSingleLocationScore(
-                autoBoth + autoOne, // alle med auto har det inne
-                0,                   // ingen manuelt inne (de med auto)
-                noneCount,           // hester uten vann
-                N
-            );
-            const uteScore = calculateSingleLocationScore(
-                autoBoth,            // kun autoBoth har auto ute
-                autoOne,             // autoOne har manuelt ute (d=40)
-                noneCount,           // hester uten vann
-                N
-            );
+            // Bestem e/f fra hester uten vann
+            let efE = 0, efF = 0;
+            if (noneCount > 0 && wState.duration !== null) {
+                const perc = (noneCount / N) * 100;
+                if (wState.duration === 'over4' || perc >= 15) {
+                    efF = noneCount;
+                } else {
+                    efE = noneCount;
+                }
+            }
+
+            // Bestem a/b fra flowRate for auto-hester
+            const fr = k1State.flowRate;
+            const flowIsA = (fr !== null && fr >= 8);
+            const flowIsB = (fr !== null && fr < 8);
+
+            // Manuelt vann = resten (ikke auto, ikke uten vann)
+            const manualCount = Math.max(0, N - noneCount - autoBoth - autoOne);
+
+            // --- INNE-score ---
+            // autoBoth: har auto inne → a eller b avhengig av flowRate
+            // autoOne: har auto inne (konservativt) → a eller b
+            // manualCount: manuelt vann inne → d
+            // noneCount: uten vann → e eller f
+            const inneCounts = { a: 0, b: 0, c: 0, d: manualCount, e: efE, f: efF };
+            if (flowIsA) inneCounts.a = autoBoth + autoOne;
+            else if (flowIsB) inneCounts.b = autoBoth + autoOne;
+            else inneCounts.d += autoBoth + autoOne; // flowRate ikke målt → d som fallback
+
+            const inneScore = calculateSingleLocationScore(inneCounts, N);
+
+            // --- UTE-score ---
+            // autoBoth: har auto ute → a eller b
+            // autoOne: IKKE auto ute → manuelt/bøtte → d
+            // manualCount: manuelt vann ute → d
+            // noneCount: uten vann → e eller f
+            const uteCounts = { a: 0, b: 0, c: 0, d: manualCount + autoOne, e: efE, f: efF };
+            if (flowIsA) uteCounts.a = autoBoth;
+            else if (flowIsB) uteCounts.b = autoBoth;
+            else uteCounts.d += autoBoth;
+
+            const uteScore = calculateSingleLocationScore(uteCounts, N);
 
             const finalScore = (inneScore !== null && uteScore !== null)
                 ? Math.min(inneScore, uteScore)
