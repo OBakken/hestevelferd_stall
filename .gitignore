@@ -11,3 +11,4 @@ Thumbs.db
 
 # Node (if used later)
 node_modules/
+.claude/
