@@ -1,52 +1,65 @@
-# Hestevelferd – Welfare Quality® vurderingsverktøy
+# Hestevelferd – digitale vurderingsverktøy
 
-Digitalt verktøy for vurdering av hestevelferd basert på den finske Welfare Quality®-protokollen, tilpasset norske forhold.
+Prosjektet utvikler digitale verktøy for vurdering av hestevelferd, basert på den finske Welfare Quality-protokollen utviklet av Essi Wallenius. Prosjektet er en del av et nordisk Interreg-samarbeid mellom Norsk Hestesenter, Kaustinen (Finland) og Wangen (Sverige).
 
-## Om prosjektet
+## Filer i repoet
 
-Verktøyet er utviklet i samarbeid med [Norsk Hestesenter](https://www.norsk-hestesenter.no/) som del av et nordisk samarbeid med det finske forskningsmiljøet i Kaustinen og svenske Wången (Interreg).
+**hestevelferd_en_hest (24).html** – En-hest-versjonen, for vurdering av enkelthester. Bruker severity-vektet virtuell prevalens for N=1. Revidert 2026-04-16 (se docs/formler/).
 
-Skjemaet dekker fire hovedkategorier:
-- **K1 – God ernæring:** Holdvurdering (BCS), fôring og vanntilgang
-- **K2 – Godt oppstallingsmiljø:** Bevegelsesfrihet, liggekomfort, renhet og termisk komfort
-- **K3 – God helse:** Kliniske funn, munnundersøkelse, kolikk, påsaling, HGS (smertevurdering)
-- **K4 – Hensiktsmessig atferd:** Sosial kontakt, beite, stereotypier, menneske-dyr-relasjoner
+**Skjema_hestevelferd_stall.html** – Stall-versjonen, for vurdering av en hel besetning. Bruker prevalens-basert scoring i trad med finsk protokoll. Ikke pavirket av en-hest-revisjonen.
 
-## Bruk
+**hestevelferd_skjema_Finsk.html** – Referansefil fra finsk protokoll. Brukes som fasit for scoring-logikk. Skal ikke redigeres.
 
-Åpne `Skjema_hestevelferd_stall.html` i en nettleser. Alt kjører lokalt — ingen data sendes noe sted. Vurderingsdata kan lagres i nettleserens localStorage og eksporteres for verifisering mot den finske referansesiden.
+**index.html** – Redirect til stall-versjonen.
 
-## Mappestruktur
+## Dokumentasjon
 
-```
-hestevelferd/
-├── README.md
-├── .gitignore
-├── Skjema_hestevelferd_stall.html
-└── docs/
-    ├── How_the_welfare_assessment_calculation_system_works.docx
-    ├── Beregning_av_vann.docx
-    └── Håndbok_hestevelferdsindikatorer_oversatt.docx
-```
+**docs/formler/** inneholder komplette formelbeskrivelser for en-hest-versjonen:
 
-## Beregningsmodell
+- `formelbeskrivelse_oversikt_enhest.md` – prinsipper, felles hjelpefunksjoner, revisjonslogg
+- `formelbeskrivelse_K1_ernaering_enhest.md` – BCS, for, vann
+- `formelbeskrivelse_K2_oppstalling_enhest.md` – bevegelse, liggekomfort, termisk
+- `formelbeskrivelse_K3_helse_enhest.md` – skader, smerte, sykdom
+- `formelbeskrivelse_K4_atferd_enhest.md` – sosial, beite, menneske-hest, emosjonell
+- `claude_code_brief_revisjon_enhest.md` – implementasjonsspesifikasjon
 
-Verktøyet implementerer den finske beregningsmodellen med spline-transformasjoner og Choquet-integraler for å aggregere delindekser til kategori- og totalscorer. Beregningene er kalibrert mot den finske referansenettsiden (Pisteiden laskenta).
+Tilsvarende dokumentasjon for stall-versjonen eksisterer ikke enna.
 
-Se `docs/How_the_welfare_assessment_calculation_system_works.docx` for detaljer om beregningslogikken.
+**Referansedokumenter i roten:**
 
-### Kjente begrensninger
+- `How_the_welfare_assessment_calculation_system_works.docx` – oversikt over den finske beregningsmodellen
+- `Beregning_av_vann.docx` – detaljert vannscoring
+- `Handbok_hestevelferdsindikatorer_oversatt.docx` – oversatt handbok
+- `K3_feilretting_brief.md` – feilrettingsdokumentasjon for K3
+- `AWINProtocolHorses.pdf` – AWIN-protokoll for hest
+- `HGS_GUIDE2025.pdf` – Horse Grimace Scale veiledning
+- `Koko-hyvinvointiprotokollan-kuvaus-liitteineen_final.pdf` – komplett finsk protokoll
+- `welfare_monitoring_system_assessment_protocol_for-wageningen_university_and_research_238619.pdf` – Wageningen-protokoll
 
-- **Sosial atferd (C2):** Proxy-formel for den finske logikken som belønner «rolige flokker». Krever ytterligere kalibrering.
-- **Veiledende scorer:** Beregningene er veiledende og kan avvike noe fra offisiell finsk Choquet-aggregering.
+## Viktig: ulike kodebaser
+
+En-hest-versjonen og stall-versjonen deler konseptuelt rammeverk (WQ-protokollen), men har separate scoring-strukturer:
+
+- Stall-versjonen bruker prevalens i flokk som input til WQ-splines
+- En-hest-versjonen bruker severity-vektet virtuell prevalens med N=1
+
+Endringer i en fil skal ikke automatisk speiles i den andre. Enhver parallell revisjon ma vurdere tilpasninger til den aktuelle kodebasen.
+
+## Teknisk
+
+Hver HTML-fil er en selvstendig applikasjon (inline CSS og JS, ingen avhengigheter). Kan apnes direkte i nettleseren eller serveres med en enkel lokal server (f.eks. `python -m http.server 8000`). Data lagres i nettleserens localStorage.
+
+## Revisjonshistorikk
+
+En-hest-versjonen revidert 2026-04-16 med 7 prinsippbeslutninger: samlet WQ-klassifisering, harmonisert worst-dominance (0,70), minimum-krav og fill-with-avg for manglende data, malingstype-merking, gradering av binare malinger, severity-vektet virtuell prevalens med WQ-splines, aktivering av SPLINE.SKIN. Detaljer i `docs/formler/formelbeskrivelse_oversikt_enhest.md`.
 
 ## Referanser
 
 - Wageningen UR Livestock Research (2011). *Welfare Monitoring System – Assessment protocol for horses*, version 2.0. Report 569.
-- [AWIN Protocol for Horses](https://air.unimi.it/retrieve/handle/2434/269097/384836/AWINProtocolHorses.pdf)
-- Finsk hestevelferdsprotokoll (Kokohyvinvointiprotokollankuvausliitteineen)
-- [HGS Guide 2025](https://www.vetmed.ucdavis.edu/horse-grimace-scale)
+- AWIN Protocol for Horses (2015).
+- Finsk hestevelferdsprotokoll – Koko hyvinvointiprotokollan kuvaus liitteineen.
+- Horse Grimace Scale (HGS) Guide 2025.
 
-## Lisens
+## Kontakt
 
-Utviklet for Norsk Hestesenter. Kontakt prosjektleder for bruksvilkår.
+Norsk Hestesenter. Prosjektansvarlig: Gunn Elisabeth Skullerud. Utvikler: Oystein Bakken.
