@@ -4,7 +4,7 @@ Prosjektet utvikler digitale verktøy for vurdering av hestevelferd, basert på 
 
 ## Filer i repoet
 
-**hestevelferd_en_hest (24).html** – En-hest-versjonen, for vurdering av enkelthester. Bruker severity-vektet virtuell prevalens for N=1. Revidert 2026-04-16 (se docs/formler/).
+**hestevelferd_en_hest.html** – En-hest-versjonen, for vurdering av enkelthester. Bruker severity-vektet virtuell prevalens for N=1. Revidert 2026-04-16 (se docs/formler/).
 
 **Skjema_hestevelferd_stall.html** – Stall-versjonen, for vurdering av en hel besetning. Bruker prevalens-basert scoring i trad med finsk protokoll. Ikke pavirket av en-hest-revisjonen.
 
