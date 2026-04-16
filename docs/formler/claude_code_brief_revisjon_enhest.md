@@ -505,12 +505,14 @@ gruppe-/stallvurderinger."
 
 ## DEL 8: Testkriterier
 
+> **Merknad:** Test 2 og 14 hadde unøyaktige predikerte verdier ved første skriving, korrigert etter implementasjonsverifisering 2026-04-16. Koden var korrekt i begge tilfeller.
+
 Kjør følgende manuelle tester etter implementering:
 
 | Test | Forventet resultat |
 |---|---|
 | BCS alle klasse 3, alt annet optimalt | K1 = 100, K2 = 100, K3 = 100, K4 = 100, Excellent |
-| BCS klasse 1, resten optimalt | K1 < 20 (BCS = 0 → C1 = 0 → K1 dominert av C1) |
+| BCS klasse 1, resten optimalt | K1 = 27 (C1=0 + C2=100, med K1-Choquet μ₂=0,27) |
 | Kun K1 og K2 fylt, K3/K4 tomme | K3 = "–", K4 = "–", WQ = "Fyll ut alle..." |
 | K3: kun 2 av 4 sub-indekser | K3 = "–" (under minimum 3/4) |
 | K3: 3 av 4 sub-indekser | K3 vises med "(3/4)", manglende = gjennomsnitt |
@@ -523,7 +525,7 @@ Kjør følgende manuelle tester etter implementering:
 | vaaResult = vaa_plus, tester = unknown | humanScore = 100 (ingen modifier) |
 | C2 vann: worst = 20 | Bruker 0,70 vekting (ikke 0,65) |
 | Alle K1-K4 > 55, to > 80 | WQ = "Excellent" |
-| K1=60, K2=15, K3=60, K4=60 | WQ = "Not classified" (K2 < 20) |
+| K1=60, K2=15, K3=60, K4=60 | Acceptable (K2=15 > 10 oppfyller minimumskrav, og tre scorer på 60 > 20 oppfyller tre-av-fire-kravet). For Not classified må K2 være ≤ 10. |
 
 ---
 
