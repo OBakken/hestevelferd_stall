@@ -1136,16 +1136,16 @@ document.addEventListener('change', function(e) {
     if (name === 'boxTime') { S.boxTime = parseInt(val); recalcK2(); return; }
     if (name === 'resources') { S.resources = val; recalcK2(); return; }
     if (name === 'bedding') { S.bedding = val; recalcK2(); return; }
-    if (name === 'clean') { S.clean = val; recalcK2(); return; }
-    if (name === 'thermal') { S.thermal = val; recalcK2(); return; }
-    if (name === 'shelter') { S.shelter = val; recalcK2(); return; }
+    if (name === 'clean') { S.clean = parseInt(val); recalcK2(); return; }
+    if (name === 'thermal') { S.thermal = parseInt(val); recalcK2(); return; }
+    if (name === 'shelter') { S.shelter = parseInt(val); recalcK2(); return; }
 
     // K2 enrichment checkboxes
     if (id.startsWith('enrFood') || id.startsWith('enrMove')) { handleEnrichment(id); recalcK2(); return; }
 
     // K3
     if (['skin','swelling','nasal','eye','mouth'].includes(name)) { S[name] = val; recalcK3(); return; }
-    if (['hoof','scratch','lameness','cough','diarrhoea','colic','tack','back'].includes(name)) { S[name] = val; recalcK3(); return; }
+    if (['hoof','scratch','lameness','cough','diarrhoea','colic','tack','back'].includes(name)) { S[name] = parseInt(val); recalcK3(); return; }
     if (name === 'saddlingRelevant') {
         S.saddlingRelevant = val;
         document.getElementById('saddlingSection').style.display = val === 'yes' ? 'block' : 'none';
@@ -1398,6 +1398,45 @@ function wqChoquet(scores, caps) {
     return Math.round(Math.max(0, Math.min(100, result)));
 }
 
+// Severity-to-spline-score: WQ virtual prevalence for N=1
+function severityToSplineScore(grade, mildWeight, severeWeight, splineConfig) {
+    if (grade === null || grade === undefined) return null;
+    const g = parseInt(grade);
+    if (g === 0) return Math.round(wqSpline(100, splineConfig));
+    const virtualPrev = g === 1 ? mildWeight : severeWeight;
+    const I = Math.max(0, 100 - virtualPrev * 100);
+    return Math.round(wqSpline(I, splineConfig));
+}
+
+// Coverage display helper
+function formatScore(score, registered, total) {
+    if (score === null) return '–';
+    return score + ' (' + registered + '/' + total + ')';
+}
+
+// WQ classification based on K1-K4 scores
+function wqClassify(k1, k2, k3, k4) {
+    const scores = [k1, k2, k3, k4].filter(s => s !== null);
+    if (scores.length < 4) return null;
+
+    const all = [k1, k2, k3, k4];
+    const sorted = [...all].sort((a, b) => b - a);
+
+    // Excellent: >55 alle, >80 på minst to
+    if (all.every(s => s > 55) && sorted.filter(s => s > 80).length >= 2)
+        return { level: 'Excellent', color: '#16a34a', emoji: '⭐' };
+
+    // Enhanced: >20 alle, >55 på minst to
+    if (all.every(s => s > 20) && sorted.filter(s => s > 55).length >= 2)
+        return { level: 'Enhanced', color: '#2563eb', emoji: '✅' };
+
+    // Acceptable: >10 alle, >20 på minst tre
+    if (all.every(s => s > 10) && sorted.filter(s => s > 20).length >= 3)
+        return { level: 'Acceptable', color: '#d97706', emoji: '⚠️' };
+
+    return { level: 'Not classified', color: '#dc2626', emoji: '🔴' };
+}
+
 // Simple weighted min-max for sub-indices with few components
 function weightedMinMax(scores) {
     const valid = scores.filter(s => s !== null);
@@ -1482,7 +1521,7 @@ function calcK1() {
             waterComponents.push(S.waterInDuration === 'no' ? 20 : 0);
         }
     }
-    if (S.waterOut) {
+    if (S.waterOut && S.waterOut !== 'na') {
         if (S.waterOut === 'yes') waterComponents.push(100);
         else {
             waterComponents.push(S.waterOutDuration === 'no' ? 20 : 0);
@@ -1504,21 +1543,18 @@ function calcK1() {
             waterScore = waterComponents[0];
         } else {
             waterScore = Math.round(
-                waterComponents[0] * 0.65 + 
-                (waterComponents.slice(1).reduce((a,b)=>a+b, 0) / (waterComponents.length - 1)) * 0.35
+                waterComponents[0] * 0.70 +
+                (waterComponents.slice(1).reduce((a,b)=>a+b, 0) / (waterComponents.length - 1)) * 0.30
             );
         }
     }
 
     // --- K1 Total: WQ Choquet (µ1=0.12, µ2=0.27, µ12=1.0) ---
-    if (c1Score !== null && waterScore !== null) {
-        const isBcsHigher = c1Score >= waterScore;
-        const mn = Math.min(c1Score, waterScore);
-        const mx = Math.max(c1Score, waterScore);
-        const muSingle = isBcsHigher ? 0.12 : 0.27;
-        return Math.round(mn * 1.0 + (mx - mn) * muSingle);
-    }
-    return c1Score !== null ? Math.round(c1Score) : (waterScore !== null ? Math.round(waterScore) : null);
+    const k1indices = [
+        {score: c1Score, idx: 1},
+        {score: waterScore, idx: 2}
+    ];
+    return wqChoquet(k1indices, CHOQUET_CAPS.K1);
 }
 
 // ===== K2: GOD OPPSTALLING (Good Housing) =====
@@ -1574,6 +1610,18 @@ function calcK2() {
         else omaehtoinenScore = 65;
     }
     
+    // Scan modifies omaehtoinenScore (moved from Idx2)
+    let scanScore = null;
+    if (Object.keys(S.scan).length === 5) {
+        const standing = Object.values(S.scan).filter(v => v === 'standing').length;
+        scanScore = Math.round(Math.max(0, 100 - standing * 20));
+    }
+    if (scanScore !== null && omaehtoinenScore !== null) {
+        omaehtoinenScore = Math.round(omaehtoinenScore * 0.6 + scanScore * 0.4);
+    } else if (scanScore !== null && omaehtoinenScore === null) {
+        omaehtoinenScore = scanScore;
+    }
+
     // Combine following Finnish weighting: omaehtoinen*0.6 + boxTime*0.4
     if (omaehtoinenScore !== null && boxTimeScore !== null) {
         movementScore = Math.round(omaehtoinenScore * 0.6 + boxTimeScore * 0.4);
@@ -1585,40 +1633,24 @@ function calcK2() {
 
     // --- IDX 2: Liggekomfort (Makuumukavuus) ---
     // Finnish: lying area → COMFORT spline, combined with cleanliness
-    // Bedding severity: 0=0, 1=0.44, 2=1.0
     let comfortScore = null;
-    
+
     let beddingSplineScore = null;
     if (S.bedding !== null && S.bedding !== 'na') {
         const bedSeverity = {0: 0, 1: 0.44, 2: 1.0}[parseInt(S.bedding)] || 0;
         const beddingI = Math.max(0, 100 - bedSeverity * 100);
         beddingSplineScore = Math.round(wqSpline(beddingI, SPLINE.COMFORT));
     }
-    
-    // Scan (time budget): animal-based observation of lying behavior
-    // If horse is always standing → poor comfort regardless of bedding
-    let scanScore = null;
-    if (Object.keys(S.scan).length === 5) {
-        const standing = Object.values(S.scan).filter(v => v === 'standing').length;
-        // Finnish: prevalence of non-resting → severity
-        // 0 standing = excellent, 5 standing = all standing (never lies down)
-        scanScore = Math.round(Math.max(0, 100 - standing * 20));
-    }
-    
-    // Cleanliness
+
+    // Cleanliness: graded 0/1/2
     let cleanScore = null;
-    if (S.clean) { cleanScore = S.clean === 'yes' ? 100 : 30; }
-    
-    // Combine: Finnish uses lyingSpline*0.7 + cleanScore*0.3
-    // For single horse: bedding spline is primary, scan can cap it
-    let lyingScore = beddingSplineScore;
-    if (beddingSplineScore !== null && scanScore !== null) {
-        // If horse never lies down, cap the comfort score
-        lyingScore = Math.round(Math.min(beddingSplineScore, beddingSplineScore * 0.6 + scanScore * 0.4));
-    } else if (scanScore !== null && beddingSplineScore === null) {
-        lyingScore = scanScore;
+    if (S.clean !== null) {
+        cleanScore = {0: 100, 1: 70, 2: 30}[parseInt(S.clean)] ?? null;
     }
-    
+
+    // Lying score = bedding spline directly (scan moved to Idx1)
+    let lyingScore = beddingSplineScore;
+
     if (lyingScore !== null && cleanScore !== null) {
         comfortScore = Math.round(lyingScore * 0.7 + cleanScore * 0.3);
     } else if (lyingScore !== null) {
@@ -1630,19 +1662,17 @@ function calcK2() {
     // --- IDX 3: Termisk komfort (Lämpömukavuus) ---
     // Finnish: thermal stress*0.6 + shelter*0.4
     let thermalScore = null;
-    
+
     let thermalStress = null;
-    if (S.thermal) {
-        // For single horse: binary (0 or 1 observation)
-        // ok → I=100 (no stress), not ok → I=0 (stress observed)
-        thermalStress = S.thermal === 'ok' ? 100 : 0;
+    if (S.thermal !== null) {
+        thermalStress = {0: 100, 1: 50, 2: 0}[parseInt(S.thermal)] ?? null;
     }
-    
+
     let shelterScore = null;
-    if (S.shelter) {
-        shelterScore = S.shelter === 'yes' ? 100 : 0;
+    if (S.shelter !== null) {
+        shelterScore = {0: 100, 1: 50, 2: 0}[parseInt(S.shelter)] ?? null;
     }
-    
+
     // Finnish combination: B3*0.6 + B2*0.4
     if (thermalStress !== null && shelterScore !== null) {
         thermalScore = Math.round(thermalStress * 0.6 + shelterScore * 0.4);
@@ -1653,15 +1683,15 @@ function calcK2() {
     }
 
     // --- K2 Total: WQ Choquet with 3 indices ---
-    // µ1=0.15(movement), µ2=0.11(comfort), µ3=0.12(thermal)
-    // WQ rule: if an index is missing, fill with max of available
-    // (conservative: assumes unobserved is at least as good as best observed)
+    // Fill missing → average (replaces fill-with-best)
+    // Minimum: 2 of 3 indices required
     const availableK2 = [movementScore, comfortScore, thermalScore].filter(s => s !== null);
-    if (availableK2.length >= 1 && availableK2.length < 3) {
-        const best = Math.max(...availableK2);
-        if (movementScore === null) movementScore = best;
-        if (comfortScore === null) comfortScore = best;
-        if (thermalScore === null) thermalScore = best;
+    if (availableK2.length < 2) return null;
+    if (availableK2.length < 3) {
+        const avg = Math.round(availableK2.reduce((a,b) => a+b, 0) / availableK2.length);
+        if (movementScore === null) movementScore = avg;
+        if (comfortScore === null) comfortScore = avg;
+        if (thermalScore === null) thermalScore = avg;
     }
     
     const k2indices = [
@@ -1684,19 +1714,19 @@ function calcK3() {
     let injuryScore = null;
     
     // Integument group: skin + swelling + hoof + scratch
-    // Different severity weights per finding type
+    // Use SKIN-spline with severity weights 0.2/1.0
     let integParts = [];
     if (S.skin !== null && S.skin !== undefined) {
-        integParts.push({0:100, 1:65, 2:10}[parseInt(S.skin)] ?? null); // Mild skin = moderate
+        integParts.push(severityToSplineScore(S.skin, 0.2, 1.0, SPLINE.SKIN));
     }
     if (S.swelling !== null && S.swelling !== undefined) {
-        integParts.push({0:100, 1:70, 2:10}[parseInt(S.swelling)] ?? null); // Cold = mild-moderate
+        integParts.push(severityToSplineScore(S.swelling, 0.2, 1.0, SPLINE.SKIN));
     }
     if (S.hoof !== null) {
-        integParts.push(S.hoof === 'no' ? 100 : 25); // Hoof problems = significant
+        integParts.push(severityToSplineScore(S.hoof, 0.2, 1.0, SPLINE.SKIN));
     }
     if (S.scratch !== null) {
-        integParts.push(S.scratch === 'no' ? 100 : 75); // Scratch = mild
+        integParts.push(severityToSplineScore(S.scratch, 0.2, 1.0, SPLINE.SKIN));
     }
     let integScore = null;
     if (integParts.filter(v=>v!==null).length > 0) {
@@ -1706,10 +1736,10 @@ function calcK3() {
             (valid.length > 1 ? (valid.slice(1).reduce((a,b)=>a+b,0)/(valid.length-1)) * 0.3 : valid[0] * 0.3));
     }
     
-    // Lameness: separate, binary, very severe
+    // Lameness: graded direct mapping (spline problematic for N=1)
     let lameScore = null;
     if (S.lameness !== null) {
-        lameScore = S.lameness === 'no' ? 100 : 0; // Binary: 100% prevalence = spline ≈ 0
+        lameScore = {0: 100, 1: 50, 2: 0}[parseInt(S.lameness)] ?? null;
     }
     
     // Combine integument + lameness with Finnish Choquet
@@ -1742,54 +1772,55 @@ function calcK3() {
     }
     if (S.cough !== null) {
         diseaseChecked++;
-        if (S.cough === 'yes') diseaseAlarms += 1; // Cough = alarm
+        const g = parseInt(S.cough);
+        if (g === 1) diseaseAlarms += 0.5;
+        else if (g === 2) diseaseAlarms += 1.0;
     }
     if (S.diarrhoea !== null) {
         diseaseChecked++;
-        if (S.diarrhoea === 'yes') diseaseAlarms += 1.5; // Diarrhoea = serious alarm
+        const g = parseInt(S.diarrhoea);
+        if (g === 1) diseaseAlarms += 0.75;
+        else if (g === 2) diseaseAlarms += 1.5;
     }
     if (S.colic !== null) {
         diseaseChecked++;
-        if (S.colic === 'yes') diseaseAlarms += 3; // Colic = critical alarm (life-threatening)
+        const g = parseInt(S.colic);
+        if (g === 1) diseaseAlarms += 1.5;
+        else if (g === 2) diseaseAlarms += 3.0;
     }
-    
+
     if (diseaseChecked > 0) {
-        // Finnish formula adapted: I = 100 - (warnings + 3*alarms)/maxPossible * 100
-        // Max possible = 7 (all findings severe/yes)
-        const maxAlarms = 7;
+        const maxAlarms = 7.5;
         const diseaseI = Math.max(0, 100 - (diseaseAlarms / maxAlarms) * 100);
         diseaseScore = Math.round(wqSpline(diseaseI, SPLINE.DISEASE));
     }
 
     // --- Sub-index 8: Fravær av brukssmerte (Absence of management pain) ---
-    // Mouth lesions are most impactful, tack and saddling secondary
+    // Simplified weighted min-max (0.70 worst)
     let mgmtPainScore = null;
-    let mgmtParts = [];
-    
-    if (S.mouth !== null && S.mouth !== undefined) {
-        // Mouth: grade 0/1/2 with heavy weight (oral pain is severe)
-        mgmtParts.push({score: {0:100, 1:40, 2:5}[parseInt(S.mouth)] ?? null, weight: 2.0});
+
+    let mouthScore = null;
+    if (S.mouth !== null && S.mouth !== undefined && S.mouth !== 'na') {
+        mouthScore = {0: 100, 1: 40, 2: 5}[parseInt(S.mouth)] ?? null;
     }
+    let tackScore = null;
     if (S.tack !== null) {
-        mgmtParts.push({score: S.tack === 'no' ? 100 : 20, weight: 1.0});
+        tackScore = {0: 100, 1: 60, 2: 10}[parseInt(S.tack)] ?? null;
     }
     let saddScore = null;
     if (S.saddlingRelevant !== 'no' && S.saddlingScore !== null && S.saddlingScore !== undefined) {
-        saddScore = {0:100, 1:45, 2:5}[parseInt(S.saddlingScore)] ?? null;
-        if (saddScore !== null) mgmtParts.push({score: saddScore, weight: 1.5});
+        saddScore = {0: 100, 1: 45, 2: 5}[parseInt(S.saddlingScore)] ?? null;
     }
-    
-    const mgmtValid = mgmtParts.filter(p => p.score !== null);
+
+    const mgmtValid = [mouthScore, tackScore, saddScore].filter(s => s !== null);
     if (mgmtValid.length > 0) {
-        // Weighted combination: worst dominates
-        mgmtValid.sort((a,b) => a.score - b.score);
-        const totalW = mgmtValid.reduce((s,p) => s + p.weight, 0);
-        const worstW = mgmtValid[0].weight / totalW;
-        const restW = 1 - worstW;
-        const restAvg = mgmtValid.length > 1 ? 
-            mgmtValid.slice(1).reduce((s,p) => s + p.score * p.weight, 0) / 
-            mgmtValid.slice(1).reduce((s,p) => s + p.weight, 0) : mgmtValid[0].score;
-        mgmtPainScore = Math.round(mgmtValid[0].score * (0.5 + worstW * 0.2) + restAvg * (0.5 - worstW * 0.2));
+        mgmtValid.sort((a, b) => a - b);
+        if (mgmtValid.length === 1) {
+            mgmtPainScore = Math.round(mgmtValid[0]);
+        } else {
+            const restAvg = mgmtValid.slice(1).reduce((a,b) => a+b, 0) / (mgmtValid.length - 1);
+            mgmtPainScore = Math.round(mgmtValid[0] * 0.70 + restAvg * 0.30);
+        }
     }
 
     // --- Sub-index 9: Fravær av annen smerte (Absence of other pain) ---
@@ -1804,7 +1835,7 @@ function calcK3() {
         otherParts.push(Math.round(Math.max(0, Math.min(100, hgsI))));
     }
     if (S.back !== null) {
-        otherParts.push(S.back === 'no' ? 100 : 0); // Back pain = very severe
+        otherParts.push({0: 100, 1: 50, 2: 0}[parseInt(S.back)] ?? null);
     }
     
     if (otherParts.length > 0) {
@@ -1813,15 +1844,16 @@ function calcK3() {
     }
 
     // --- K3 Total: WQ Choquet with 4 indices (Taulukko 18) ---
-    // Fill missing indices with max of available
+    // Fill missing → average, minimum 3/4
     const k3scores = [injuryScore, otherPainScore, diseaseScore, mgmtPainScore];
     const availableK3 = k3scores.filter(s => s !== null);
-    if (availableK3.length >= 1 && availableK3.length < 4) {
-        const best = Math.max(...availableK3);
-        if (injuryScore === null) injuryScore = best;
-        if (otherPainScore === null) otherPainScore = best;
-        if (diseaseScore === null) diseaseScore = best;
-        if (mgmtPainScore === null) mgmtPainScore = best;
+    if (availableK3.length < 3) return null;
+    if (availableK3.length < 4) {
+        const avg = Math.round(availableK3.reduce((a,b) => a+b, 0) / availableK3.length);
+        if (injuryScore === null) injuryScore = avg;
+        if (otherPainScore === null) otherPainScore = avg;
+        if (diseaseScore === null) diseaseScore = avg;
+        if (mgmtPainScore === null) mgmtPainScore = avg;
     }
     
     const k3indices = [
@@ -1895,6 +1927,10 @@ function calcK4() {
         const resultMap = {vaa_plus: 100, faa_plus: 75, faa_passive: 50, vaa_minus: 25, faa_minus: 5};
         const humanI = resultMap[S.vaaResult] || 50;
         humanScore = Math.round(wqSpline(humanI, SPLINE.HUMAN_ANIMAL));
+        // Tester-modifier: known person → reduce score by 10
+        if (humanScore !== null && S.tester === 'known') {
+            humanScore = Math.max(0, humanScore - 10);
+        }
     }
 
     // --- IDX 4: Positive emotional state ---
@@ -1907,14 +1943,16 @@ function calcK4() {
     }
 
     // --- K4 Total: WQ Choquet with 4 indices ---
+    // Fill missing → average, minimum 3/4
     const k4scores = [socialScore, pastureScore, humanScore, emotionalScore];
     const availableK4 = k4scores.filter(s => s !== null);
-    if (availableK4.length >= 1 && availableK4.length < 4) {
-        const best = Math.max(...availableK4);
-        if (socialScore === null) socialScore = best;
-        if (pastureScore === null) pastureScore = best;
-        if (humanScore === null) humanScore = best;
-        if (emotionalScore === null) emotionalScore = best;
+    if (availableK4.length < 3) return null;
+    if (availableK4.length < 4) {
+        const avg = Math.round(availableK4.reduce((a,b) => a+b, 0) / availableK4.length);
+        if (socialScore === null) socialScore = avg;
+        if (pastureScore === null) pastureScore = avg;
+        if (humanScore === null) humanScore = avg;
+        if (emotionalScore === null) emotionalScore = avg;
     }
     
     const k4indices = [
@@ -1927,10 +1965,43 @@ function calcK4() {
 }
 
 // ===== RECALC AND UPDATE PROGRESS =====
-function recalcK1() { const v = calcK1(); updateProgress('K1', v); document.getElementById('k1Score').textContent = v !== null ? v : '–'; }
-function recalcK2() { const v = calcK2(); updateProgress('K2', v); document.getElementById('k2Score').textContent = v !== null ? v : '–'; }
-function recalcK3() { const v = calcK3(); updateProgress('K3', v); document.getElementById('k3Score').textContent = v !== null ? v : '–'; }
-function recalcK4() { const v = calcK4(); updateProgress('K4', v); document.getElementById('k4Score').textContent = v !== null ? v : '–'; }
+function recalcK1() {
+    const c1Ready = (S.bcsClass !== null) || (S.feedInterval !== null || S.feedOrder !== null || S.feedAmount !== null);
+    const hasWaterData = S.waterIn !== null || (S.waterOut !== null && S.waterOut !== 'na') || S.waterFlow !== null || S.waterPoints !== null;
+    const registered = (c1Ready ? 1 : 0) + (hasWaterData ? 1 : 0);
+    const v = calcK1();
+    updateProgress('K1', v);
+    document.getElementById('k1Score').textContent = v !== null ? formatScore(v, registered, 2) : '–';
+}
+function recalcK2() {
+    const hasMovement = S.boxTime !== null || S.resources !== null || Object.keys(S.scan).length === 5;
+    const hasComfort = S.bedding !== null || S.clean !== null;
+    const hasThermal = S.thermal !== null || S.shelter !== null;
+    const registered = (hasMovement ? 1 : 0) + (hasComfort ? 1 : 0) + (hasThermal ? 1 : 0);
+    const v = calcK2();
+    updateProgress('K2', v);
+    document.getElementById('k2Score').textContent = v !== null ? formatScore(v, registered, 3) : '–';
+}
+function recalcK3() {
+    const hasInjury = S.skin !== null || S.swelling !== null || S.hoof !== null || S.scratch !== null || S.lameness !== null;
+    const hasOtherPain = S.hgsSum !== undefined && S.hgsSum !== null || S.back !== null;
+    const hasDisease = S.nasal !== null || S.eye !== null || S.cough !== null || S.diarrhoea !== null || S.colic !== null;
+    const hasMgmt = (S.mouth !== null && S.mouth !== 'na') || S.tack !== null || (S.saddlingRelevant !== 'no' && S.saddlingScore !== null);
+    const registered = (hasInjury ? 1 : 0) + (hasOtherPain ? 1 : 0) + (hasDisease ? 1 : 0) + (hasMgmt ? 1 : 0);
+    const v = calcK3();
+    updateProgress('K3', v);
+    document.getElementById('k3Score').textContent = v !== null ? formatScore(v, registered, 4) : '–';
+}
+function recalcK4() {
+    const hasSocial = S.scenario !== null || S.indoorContact !== null;
+    const hasPasture = S.pastureDays !== null || S.enrichDays !== null;
+    const hasHuman = S.vaaResult !== null;
+    const hasEmotional = S.obsMinutes > 0 && (S.frustration !== null || S.stereotype !== null);
+    const registered = (hasSocial ? 1 : 0) + (hasPasture ? 1 : 0) + (hasHuman ? 1 : 0) + (hasEmotional ? 1 : 0);
+    const v = calcK4();
+    updateProgress('K4', v);
+    document.getElementById('k4Score').textContent = v !== null ? formatScore(v, registered, 4) : '–';
+}
 
 function updateProgress(cat, val) {
     const el = document.getElementById('prog' + cat + 'v');
@@ -1978,6 +2049,19 @@ function updateResults() {
     ctx.fillStyle = '#7a7570';
     ctx.fillText('VELFERDSPOENG', cx, cy + 30);
 
+    // WQ classification
+    const wq = wqClassify(k1, k2, k3, k4);
+    const wqEl = document.getElementById('wqClassification');
+    if (wq) {
+        wqEl.innerHTML = '<div style="text-align:center;padding:1.5rem;">' +
+            '<div style="font-size:2rem;">' + wq.emoji + '</div>' +
+            '<div style="font-size:1.4rem;font-weight:800;color:' + wq.color + ';">' + wq.level + '</div>' +
+            '<div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.5rem;">' +
+            'Welfare Quality\u00AE klassifisering basert p\u00E5 K1\u2013K4</div></div>';
+    } else {
+        wqEl.innerHTML = '<p style="text-align:center;color:var(--text-muted);">Fyll ut alle kategorier for WQ-klassifisering</p>';
+    }
+
     // Welfare summary
     const summaryCard = document.getElementById('welfareSummaryCard');
     const summaryContent = document.getElementById('welfareSummaryContent');
@@ -1991,6 +2075,12 @@ function updateResults() {
             '<p style="font-size:1.3rem;margin-bottom:0.5rem;">' + emoji + ' Hvordan har <strong>' + name + '</strong> det egentlig?</p>' +
             '<p>Basert på funnene i denne vurderingen tyder helhetsbildet på at <strong>' + name + '</strong> har ' +
             '<span style="color:' + color + ';font-weight:700;">' + level + '</span> opplevd velferd.</p>';
+        summaryContent.innerHTML +=
+            '<p style="font-size:0.8rem;color:var(--text-muted);margin-top:1rem;font-style:italic;">' +
+            'Denne vurderingen er basert p\u00E5 observasjon av \u00E9n hest p\u00E5 ett tidspunkt. ' +
+            'Score-verdiene bruker Welfare Quality\u00AE-rammeverket med severity-vektet ' +
+            'virtuell prevalens for N = 1, og kan ikke direkte sammenlignes med ' +
+            'gruppe-/stallvurderinger.</p>';
         summaryCard.style.display = '';
     } else {
         summaryCard.style.display = 'none';
