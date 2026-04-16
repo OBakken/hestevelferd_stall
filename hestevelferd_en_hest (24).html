@@ -2301,17 +2301,27 @@ function drawShareCard() {
         }
     });
     
+    // Rapport-tekst (N=1 merknad)
+    ctx.fillStyle = '#b0aaa3';
+    ctx.font = '400 16px Nunito, sans-serif';
+    ctx.textAlign = 'center';
+    const rapportLines = [
+        'Basert p\u00E5 observasjon av \u00E9n hest p\u00E5 ett tidspunkt.',
+        'Severity-vektet virtuell prevalens for N=1 \u2013 ikke sammenlignbar med gruppevurderinger.'
+    ];
+    rapportLines.forEach((line, i) => ctx.fillText(line, W/2, 920 + i * 22));
+
     // Date
     const date = new Date().toLocaleDateString('no-NO', {day:'numeric', month:'long', year:'numeric'});
     ctx.fillStyle = '#7a7570';
     ctx.font = '400 20px Nunito, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(date, W/2, 945);
-    
+    ctx.fillText(date, W/2, 975);
+
     // Footer with branding
     ctx.fillStyle = '#b0aaa3';
     ctx.font = '400 18px Nunito, sans-serif';
-    ctx.fillText('Basert på Welfare Quality® og finsk protokoll', W/2, 985);
+    ctx.fillText('Basert p\u00E5 Welfare Quality\u00AE og finsk protokoll', W/2, 1005);
     
     // Draw logo (black version)
     return new Promise(resolve => {
