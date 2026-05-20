@@ -494,6 +494,17 @@ const WQ = {
 </head>
 <body>
 
+<!-- HELP MODAL (global – utenfor tab-containere så den er synlig fra alle faner) -->
+<div class="modal-overlay" id="helpModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="helpTitle">Hjelp</h3>
+            <button class="modal-close" onclick="closeHelp()">&times;</button>
+        </div>
+        <div class="modal-body" id="helpBody"></div>
+    </div>
+</div>
+
 <!-- SCORE PANEL -->
 <div class="score-panel" id="scorePanel">
     <div class="score-panel-inner">
@@ -1964,17 +1975,6 @@ const WQ = {
         <!-- K2 DEBUG PANEL (fjernes etter debugging) -->
         <div id="k2DebugPanel" style="display:none; background:#fff3cd; border:2px solid #ffc107; border-radius:8px; padding:12px; margin-top:16px; font-family:monospace; font-size:0.8rem; line-height:1.5;"></div>
 
-    </div>
-
-    <!-- HELP MODAL -->
-    <div class="modal-overlay" id="helpModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 id="helpTitle">Hjelp</h3>
-                <button class="modal-close" onclick="closeHelp()">&times;</button>
-            </div>
-            <div class="modal-body" id="helpBody"></div>
-        </div>
     </div>
 </div>
 
